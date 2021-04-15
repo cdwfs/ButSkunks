@@ -1,0 +1,48 @@
+{
+    "title": "ToxicSkunks",
+    "developer": "Bitterly Indifferent Studios",
+    "copyright": "©2021 Bitterly Indifferent Studios",
+    "license": "All Rights Reserved. Redistribution prohibited.",
+    "packages": [],
+    "scripts": [
+        "globals.pyxl"
+    ],
+    "modes": [
+        "Play",
+        "Menu",
+        "PreGame",
+        "PostGame",
+        "Credits",
+        "Help"
+    ],
+    "start_mode": "Play",
+    "docs": [],
+    "assets": {
+        "engineer_sprite": "quad://sprites/dawnlike-engineer-16x16.sprite.json",
+        "map_tiles_sprite": "map-tiles.sprite.json",
+        "template_map": "template.map.json",
+        "blocks_sprite": "quad://sprites/kenney-blocks-16x16.sprite.json",
+        "mage_sprite": "quad://sprites/dawnlike-mage-16x16.sprite.json",
+        "rogue_sprite": "quad://sprites/dawnlike-rogue-16x16.sprite.json",
+        "warrior_sprite": "quad://sprites/dawnlike-warrior-16x16.sprite.json",
+        "font": "quad://fonts/weaver-7.font.json",
+        "large_font": "quad://fonts/weaver-10.font.json",
+        "loop_sound": "loop.sound.json"
+    },
+    "version": 0,
+    "min_players": 2,
+    "max_players": 4,
+    "cooperative": false,
+    "competitive": true,
+    "achievements": false,
+    "highscores": false,
+    "description": "",
+    "constants": {
+        "DEBUG_AI": {
+            "type": "boolean",
+            "value": true,
+            "description": "If true, draw some extra debug data pertaining to AI processing"
+        }
+    },
+    "screenshot_tag": "Starter Example"
+}
