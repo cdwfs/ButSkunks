@@ -1,0 +1,36 @@
+{
+    "url": "skunk.png",
+    "sprite_size": {
+        "x": 16,
+        "y": 24
+    },
+    "pivot": {
+        "x": 8,
+        "y": 8
+    },
+    "names": {
+        "idle": {
+            "start": {
+                "x": 1,
+                "y": 0
+            }
+        },
+        "walk": {
+            "start": {
+                "x": 0,
+                "y": 0
+            },
+            "end": {
+                "x": 2,
+                "y": 0
+            },
+            "extrapolate": "oscillate",
+            "frames": [
+                4,
+                4,
+                4
+            ]
+        }
+    },
+    "license": "TODO"
+}
