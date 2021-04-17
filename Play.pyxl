@@ -77,7 +77,7 @@ def is_dpad_pressed(gamepad):
     // while dpad is in one direction.
     return (gamepad.xx or gamepad.yy) or (gamepad.x or gamepad.y)
 
-def make_bomber_entity(player):
+def make_skunk_entity(player):
     return make_entity({
         sprite_sheet: player.sprite_sheet,
         sprite: player.sprite_sheet[0][0],
@@ -107,21 +107,21 @@ def make_dummy_gamepad(player_index):
         index:player_index,
         }
 
-// ACTIVE BOMBERS
+// ACTIVE SKUNKS
 
-// Record which cells have active bombers in them
-// target: active_bombers
-// RO: map, bomber.pos
-// RW: bomber_grid
-def itor_active_bomber_populate_grid(bomber):
-    const icell = map_pos_to_cell(bomber.pos)
-    active_bomber_grid[icell.x][icell.y] = bomber
+// Record which cells have active skunks in them
+// target: active_skunks
+// RO: map, skunk.pos
+// RW: skunk_grid
+def itor_active_skunk_populate_grid(skunk):
+    const icell = map_pos_to_cell(skunk.pos)
+    active_skunk_grid[icell.x][icell.y] = skunk
 
-// Determine bomber velocity and facing direction for this frame.
-// target: active_bombers
-// RO: map, bomber.pos, bomber.gamepad, bomber.speed, bomber.sprite_sheet
-// RW: bomber.next_vel, bomber.vel, bomber.dir, bomber.sprite
-def itor_active_bomber_update_velocity(bomber):
+// Determine skunk velocity and facing direction for this frame.
+// target: active_skunks
+// RO: map, skunk.pos, skunk.gamepad, skunk.speed, skunk.sprite_sheet
+// RW: skunk.next_vel, skunk.vel, skunk.dir, skunk.sprite
+def itor_active_skunk_update_velocity(skunk):
     // desired behavior:
     // - If we're already moving
     //   - ...and the same direction is already held, keep moving.
@@ -132,7 +132,7 @@ def itor_active_bomber_update_velocity(bomber):
     // - If we're not moving, start moving in the desired direction immediately (or just
     //   turn if the path is blocked.
     // - never possible to move in both X and Y simultaneously
-    with next_vel, vel, gamepad, speed, dir, sprite, sprite_sheet in bomber:
+    with next_vel, vel, gamepad, speed, dir, sprite, sprite_sheet in skunk:
         // Record desired upcoming turns based on gamepad state
         let sv = sign(vel)
         let sg = sign(xy(gamepad.x, gamepad.y))
@@ -141,11 +141,11 @@ def itor_active_bomber_update_velocity(bomber):
         else if |sg.y| > ε:
             next_vel = xy(0, sg.y * speed)
         
-        // TODO: figure out why this causes bombers to fly off through walls. Something
+        // TODO: figure out why this causes skunks to fly off through walls. Something
         // about the speed changing mid-game violates some assumptions?
         //speed = if gamepad.b ≠ 0 then 2 else 1
         
-        const at_center = at_cell_center(bomber)
+        const at_center = at_cell_center(skunk)
         const vel_dir = direction(vel)
         const next_vel_dir = direction(next_vel)
         const next_vel_is_opposite = ‖vel_dir + next_vel_dir‖ < ε
@@ -184,13 +184,13 @@ def itor_active_skunk_animate(skunk):
         else if dir == DIR_E: skunk.angle = 270°
         
 
-// Apply current velocity to bomber position, taking into account obstacles that block movement.
-// target: active_bombers
+// Apply current velocity to skunk position, taking into account obstacles that block movement.
+// target: active_skunks
 // RO: bomb_grid, box_grid
-// RW: bomber.pos, bomber.vel
-def itor_active_bomber_move(bomber):
-    const at_center = at_cell_center(bomber)
-    with vel, pos in bomber:
+// RW: skunk.pos, skunk.vel
+def itor_active_skunk_move(skunk):
+    const at_center = at_cell_center(skunk)
+    with vel, pos in skunk:
         let sv = sign(vel)
         const icell = map_pos_to_cell(pos)
         const fcell = xy((pos.x/BLOCK_SIZE.x) % 1.0, (pos.y/BLOCK_SIZE.y) % 1.0)
@@ -211,10 +211,10 @@ def itor_active_bomber_move(bomber):
             pos = vec_lerp(round(pos), pos, |sign(vel)|)
         assert(sv.x == 0 || sv.y == 0, "velocity " + vec_str(vel) + " must be all X or all Y")
 
-// Allow bombers to place bombs
-// RO: bomber.gamepad, bomber.pos, mode_frames, bomber.max_active_bomb_count, bomber.bomb_range
-// RW: bomb_grid, bomber.active_bomb_count
-def itor_active_bomber_place_bomb(bomber):
+// Allow skunks to place bombs
+// RO: skunk.gamepad, skunk.pos, mode_frames, skunk.max_active_bomb_count, skunk.bomb_range
+// RW: bomb_grid, skunk.active_bomb_count
+def itor_active_skunk_place_bomb(skunk):
     // place bombs
     // desired behavior:
     // - bombs are always placed at the center of a cell
@@ -232,10 +232,10 @@ def itor_active_bomber_place_bomb(bomber):
     //     - No, orthogonal directional changes are only possible at cell centers. If
     //       a player's forward movement is blocked by a bomb, the only direction they
     //       can move is away (which may be into a cell that's ALSO blocked by a bomb)
-    if bomber.active_bomb_count ≥ bomber.max_active_bomb_count:
+    if skunk.active_bomb_count ≥ skunk.max_active_bomb_count:
         return
-    const icell = map_pos_to_cell(bomber.pos)
-    if bomber.gamepad.aa and is_cell_empty(bomber.pos) and not bomb_grid[icell.x][icell.y]:
+    const icell = map_pos_to_cell(skunk.pos)
+    if skunk.gamepad.aa and is_cell_empty(skunk.pos) and not bomb_grid[icell.x][icell.y]:
         play_sound(SND_BOMB_PLACE)
         const bomb = make_entity({
             sprite: BOMB_SPRITE,
@@ -244,28 +244,28 @@ def itor_active_bomber_place_bomb(bomber):
             z: 2,
             born_frame: mode_frames,
             fuse_frames: 120,
-            range: bomber.bomb_range,
-            bomber: bomber,
+            range: skunk.bomb_range,
+            skunk: skunk,
             })
         push(bombs, bomb)
-        bomber.active_bomb_count += 1
+        skunk.active_bomb_count += 1
         bomb_grid[icell.x][icell.y] = bomb
 
-// Check for player death conditions. If true, move from active_bombers and add to dead_bombers.
-// target: active_bombers
-// RO: bomber.pos, explosion_grid, mode_frames
-// RW: bomber.death_frame, dead_bombers
-def itor_active_bomber_kill(bomber):
-    const icell = map_pos_to_cell(bomber.pos)
+// Check for player death conditions. If true, move from active_skunks and add to dead_skunks.
+// target: active_skunks
+// RO: skunk.pos, explosion_grid, mode_frames
+// RW: skunk.death_frame, dead_skunks
+def itor_active_skunk_kill(skunk):
+    const icell = map_pos_to_cell(skunk.pos)
     if explosion_grid[icell.x][icell.y]:
-        play_sound(SND_BOMBER_DEATH)
-        delay(play_sound, 120, SND_BOMBER_DEATH2)
-        push(dead_bombers, make_entity({
-            pos: bomber.pos,
+        play_sound(SND_skunk_DEATH)
+        delay(play_sound, 120, SND_skunk_DEATH2)
+        push(dead_skunks, make_entity({
+            pos: skunk.pos,
             sprite: death_sprite[0][0],
-            z: bomber.z,
+            z: skunk.z,
             death_time: mode_frames,
-            player: bomber.player,
+            player: skunk.player,
             }))
         return iterate.REMOVE
 
@@ -278,8 +278,8 @@ def itor_active_bomber_kill(bomber):
 let map = nil
 let map_xform = xy(0,0)
 let players = []
-let active_bombers = []
-let active_bomber_grid = []
+let active_skunks = []
+let active_skunk_grid = []
 let boxes = []
 let box_grid = []
 
@@ -290,8 +290,8 @@ enter(player_infos)
 map = deep_clone(template_map)
 map_xform = map_offset(map)
 players = []
-active_bombers = []
-active_bomber_grid = []
+active_skunks = []
+active_skunk_grid = []
 boxes = []
 box_grid = []
 
@@ -337,7 +337,7 @@ for mx < map.size.x:
             box_grid[icell.x][icell.y] = box
             set_map_sprite(map, icell, FLOOR_SPRITE)
 
-// Create players and bombers
+// Create players and skunks
 for info in player_infos:
     if info == ∅:
         continue
@@ -348,26 +348,26 @@ for info in player_infos:
         spawn_icell: player_start_icells[player_index],
         sprite_sheet: info.sprite_sheet,
         gamepad: info.gamepad,
-        bomber: nil,
+        skunk: nil,
         is_cpu: info.is_cpu or false
         })
 for player in players:
-    // spawn bombers
-    let bomber = make_bomber_entity(player)
-    push(active_bombers, bomber)
-    player.bomber = bomber
+    // spawn skunks
+    let skunk = make_skunk_entity(player)
+    push(active_skunks, skunk)
+    player.skunk = skunk
     player.lives -= 1
 
 frame
 ────────────────────────────────────────────────────────────────────────
 
 // SIMULATE
-// Place remaining active bombers in grid
-active_bomber_grid = make_array2d(map.size.x, map.size.y, ∅)
-iterate(active_bombers, itor_active_bomber_populate_grid)
-// Process active bombers
-iterate(active_bombers, itor_active_bomber_update_velocity)
-iterate(active_bombers, itor_active_bomber_move)
+// Place remaining active skunks in grid
+active_skunk_grid = make_array2d(map.size.x, map.size.y, ∅)
+iterate(active_skunks, itor_active_skunk_populate_grid)
+// Process active skunks
+iterate(active_skunks, itor_active_skunk_update_velocity)
+iterate(active_skunks, itor_active_skunk_move)
 iterate(active_skunks, itor_active_skunk_animate)
 // DRAW
 preserving_transform:
@@ -375,7 +375,7 @@ preserving_transform:
     draw_map({map:map})
     // Offset by ½ a grid square so that we can use integer coordinates for the centers of grid tiles
     compose_transform(0.5 BLOCK_SIZE)
-    iterate(active_bombers, draw_entity)
+    iterate(active_skunks, draw_entity)
     iterate(boxes, draw_entity)
 
 leave
