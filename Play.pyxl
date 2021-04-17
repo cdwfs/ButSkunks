@@ -166,9 +166,23 @@ def itor_active_bomber_update_velocity(bomber):
             sv = xy(0,0)
             next_vel = xy(0,0)
 
-        // Update bomber sprite
-        const anim_frame = if is_zero(sv) then 0 else loop(floor(mode_frames/4), 4)
-        sprite = sprite_sheet[anim_frame][dir]
+// Update the animation for skunk sprites
+// target: active_skunks
+// RO: skunk.dir, skunk.vel, skunk.sprite_sheet
+// RW: skunk.sprite, skunk.angle
+def itor_active_skunk_animate(skunk):
+    with vel, dir, sprite, sprite_sheet in skunk:
+        // Record desired upcoming turns based on gamepad state
+        let sv = sign(vel)
+        // Choose appropriate animation frame
+        const anim = if is_zero(sv) then sprite_sheet.idle else sprite_sheet.walk
+        skunk.sprite = anim.frame(mode_frames)
+        // Rotate sprite based on direction
+        if      dir == DIR_N: skunk.angle = 0°
+        else if dir == DIR_W: skunk.angle = 90°
+        else if dir == DIR_S: skunk.angle = 180°
+        else if dir == DIR_E: skunk.angle = 270°
+        
 
 // Apply current velocity to bomber position, taking into account obstacles that block movement.
 // target: active_bombers
@@ -290,7 +304,7 @@ if get_previous_mode() == ∅:
     debug_print("Debug mode!")
     player_infos = [{
         gamepad: gamepad_array[0], // includes player index in gamepad.index
-        sprite_sheet: engineer_sprite,
+        sprite_sheet: skunk_sprite,
     }]
     
 // Search map for starting cells, so we can look them up by player index
@@ -354,7 +368,7 @@ iterate(active_bombers, itor_active_bomber_populate_grid)
 // Process active bombers
 iterate(active_bombers, itor_active_bomber_update_velocity)
 iterate(active_bombers, itor_active_bomber_move)
-
+iterate(active_skunks, itor_active_skunk_animate)
 // DRAW
 preserving_transform:
     set_transform(map_xform)
