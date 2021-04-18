@@ -5,7 +5,8 @@
     "license": "All Rights Reserved. Redistribution prohibited.",
     "packages": [],
     "scripts": [
-        "globals.pyxl"
+        "globals.pyxl",
+        "music.pyxl"
     ],
     "modes": [
         "Play",
@@ -27,7 +28,7 @@
         "warrior_sprite": "quad://sprites/dawnlike-warrior-16x16.sprite.json",
         "font": "quad://fonts/weaver-7.font.json",
         "large_font": "quad://fonts/weaver-10.font.json",
-        "loop_sound": "loop.sound.json",
+        "bgm-in-game_sound": "bgm-in-game.sound.json",
         "skunk_sprite": "skunk.sprite.json"
     },
     "version": 0,

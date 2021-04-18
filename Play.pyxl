@@ -296,7 +296,10 @@ boxes = []
 box_grid = []
 
 if not bgm_is_playing():
-    bgm_start()
+    let loops = [
+        SND_MUSIC_INGAME,
+    ]
+    bgm_start(loops)
 
 // In debug mode, we bypass the main menu and jump straight to play mode.
 // Set reasonable defaults.
@@ -361,6 +364,8 @@ for player in players:
 frame
 ────────────────────────────────────────────────────────────────────────
 
+bgm_update()
+
 // SIMULATE
 // Place remaining active skunks in grid
 active_skunk_grid = make_array2d(map.size.x, map.size.y, ∅)
@@ -377,6 +382,7 @@ preserving_transform:
     compose_transform(0.5 BLOCK_SIZE)
     iterate(active_skunks, draw_entity)
     iterate(boxes, draw_entity)
+bgm_draw_debug()
 
 leave
 ────────────────────────────────────────────────────────────────────────
