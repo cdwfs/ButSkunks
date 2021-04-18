@@ -21,7 +21,7 @@
     "assets": {
         "engineer_sprite": "quad://sprites/dawnlike-engineer-16x16.sprite.json",
         "map_tiles_sprite": "map-tiles.sprite.json",
-        "template_map": "template.map.json",
+        "basement_map": "basement.map.json",
         "blocks_sprite": "quad://sprites/kenney-blocks-16x16.sprite.json",
         "mage_sprite": "quad://sprites/dawnlike-mage-16x16.sprite.json",
         "rogue_sprite": "quad://sprites/dawnlike-rogue-16x16.sprite.json",

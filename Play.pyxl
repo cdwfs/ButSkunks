@@ -310,7 +310,7 @@ enter(player_infos)
 ────────────────────────────────────────────────────────────────────────
 
 // Initialize mode variables
-map = deep_clone(template_map)
+map = deep_clone(basement_map)
 map_xform = map_offset(map)
 players = []
 active_skunks = []
