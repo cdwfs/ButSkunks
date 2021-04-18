@@ -88,9 +88,7 @@ def make_skunk_entity(player):
         next_vel: xy(0,0),
         dir: DIR_S,
         speed: 1,
-        bomb_range: 1,
-        max_active_bomb_count: 1,
-        active_bomb_count: 0,
+        active_stinkbombs: 0,
         })
 
 // Construct a dummy gamepad object for use by AI players.
@@ -211,46 +209,6 @@ def itor_active_skunk_move(skunk):
             pos = vec_lerp(round(pos), pos, |sign(vel)|)
         assert(sv.x == 0 || sv.y == 0, "velocity " + vec_str(vel) + " must be all X or all Y")
 
-// Allow skunks to place bombs
-// RO: skunk.gamepad, skunk.pos, mode_frames, skunk.max_active_bomb_count, skunk.bomb_range
-// RW: bomb_grid, skunk.active_bomb_count
-def itor_active_skunk_place_bomb(skunk):
-    // place bombs
-    // desired behavior:
-    // - bombs are always placed at the center of a cell
-    // - can't place a bomb in a cell that already has one
-    // - bombs are placed on the player's current cell.
-    //   - a player in the cell where a bomb is placed can move OUT of that cell,
-    //     but not back in again.
-    //   - a player can never move INTO a cell with a bomb.
-    //   - if a player is mostly into a new cell, the bomb will be placed in front
-    //     of them, such that it can be immediately kicked (or block further movement)
-    // - The collision radius for bombs is effectively ½ as large as a full cell.
-    //   - This means a player can move partway into a cell with a bomb, and can
-    //     be trapped between two bombs in a corridor.
-    //   - Does this mean a player could move between bombs in an open space?
-    //     - No, orthogonal directional changes are only possible at cell centers. If
-    //       a player's forward movement is blocked by a bomb, the only direction they
-    //       can move is away (which may be into a cell that's ALSO blocked by a bomb)
-    if skunk.active_bomb_count ≥ skunk.max_active_bomb_count:
-        return
-    const icell = map_pos_to_cell(skunk.pos)
-    if skunk.gamepad.aa and is_cell_empty(skunk.pos) and not bomb_grid[icell.x][icell.y]:
-        play_sound(SND_BOMB_PLACE)
-        const bomb = make_entity({
-            sprite: BOMB_SPRITE,
-            pos: BLOCK_SIZE*icell,
-            scale: xy(1,1),
-            z: 2,
-            born_frame: mode_frames,
-            fuse_frames: 120,
-            range: skunk.bomb_range,
-            skunk: skunk,
-            })
-        push(bombs, bomb)
-        skunk.active_bomb_count += 1
-        bomb_grid[icell.x][icell.y] = bomb
-
 // Check for player death conditions. If true, move from active_skunks and add to dead_skunks.
 // target: active_skunks
 // RO: skunk.pos, explosion_grid, mode_frames
@@ -269,6 +227,69 @@ def itor_active_skunk_kill(skunk):
             }))
         return iterate.REMOVE
 
+// Handle skunks placing stinkbombs.
+// target: active_skunks
+// RO: skunk.gamepad, skunk.pos, mode_frames
+// RW: bomb_grid, skunk.active_bomb_count
+def itor_active_skunk_place_stinkbomb(skunk):
+    with pos, gamepad, active_stinkbombs in skunk:
+        if skunk.active_stinkbombs > 0:
+            return
+        const icell = map_pos_to_cell(skunk.pos)
+        if gamepad.a:
+            active_stinkbombs += 1
+            const stinkbomb = make_entity({
+                pos: map_cell_to_pos(icell),
+                scale: xy(0,0),
+                opacity: 0,
+                sprite: map_tiles_sprite.stink_reticle,
+                source_skunk: skunk,
+                gamepad: skunk.gamepad,
+                start_frame: mode_frames,
+                })
+            push(stinkbombs, stinkbomb)
+            //debug_print("pressed on frame: " + bgm_measure_f)
+
+// STINKBOMBS
+
+// Grow stinkbombs until they explode
+// target: stinkbombs
+// RO:
+// RW:
+def itor_stinkbomb_grow(stinkbomb):
+    with start_frame, scale, opacity, gamepad in stinkbomb:
+        const size_t = clamp(mode_frames - start_frame, 0, BGM_FRAMES_PER_MEASURE) / (BGM_FRAMES_PER_MEASURE)
+        opacity = 1
+        scale = 3 * size_t * size_t
+        if not gamepad.a:
+            // stop growing. See whether the bomb succeeded. If so, spawn an explosion of the appropriate
+            // size. Either way, destroy the bomb.
+            const release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - INPUT_AUDIO_FRAME_OFFSET) % BGM_FRAMES_PER_MEASURE
+            const min_f = BGM_FRAMES_PER_MEASURE - INPUT_AUDIO_FRAME_TOLERANCE
+            const max_f = INPUT_AUDIO_FRAME_TOLERANCE
+            //debug_print("size: " + scale + " frame: " + bgm_measure_f + "adjusted: " + release_measure_f)
+            if release_measure_f ≥ min_f or release_measure_f ≤ max_f:
+                // bomb succeeds!
+                const explosion = make_entity({
+                    pos: stinkbomb.pos,
+                    sprite: map_tiles_sprite.stink,
+                    start_frame: mode_frames,
+                    scale:stinkbomb.scale,
+                    })
+                push(explosions, explosion)
+            else:
+                // bomb fizzles
+            stinkbomb.source_skunk.active_stinkbombs -= 1
+            return iterate.REMOVE
+
+// Destroy explosions after a while
+// target: explosions
+// RO:
+// RW:
+def itor_explosion_fade(explosion):
+    if mode_frames - explosion.start_frame > 10:
+        return iterate.REMOVE
+            
 // BOXES
 
 // GLOBALS
@@ -280,6 +301,8 @@ let map_xform = xy(0,0)
 let players = []
 let active_skunks = []
 let active_skunk_grid = []
+let stinkbombs = []
+let explosions = []
 let boxes = []
 let box_grid = []
 
@@ -292,14 +315,10 @@ map_xform = map_offset(map)
 players = []
 active_skunks = []
 active_skunk_grid = []
+stinkbombs = []
+explosions = []
 boxes = []
 box_grid = []
-
-if not bgm_is_playing():
-    let loops = [
-        SND_MUSIC_INGAME,
-    ]
-    bgm_start(loops)
 
 // In debug mode, we bypass the main menu and jump straight to play mode.
 // Set reasonable defaults.
@@ -360,6 +379,12 @@ for player in players:
     push(active_skunks, skunk)
     player.skunk = skunk
     player.lives -= 1
+    
+if not bgm_is_playing():
+    let loops = [
+        SND_MUSIC_INGAME,
+    ]
+    bgm_start(loops)
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -374,6 +399,10 @@ iterate(active_skunks, itor_active_skunk_populate_grid)
 iterate(active_skunks, itor_active_skunk_update_velocity)
 iterate(active_skunks, itor_active_skunk_move)
 iterate(active_skunks, itor_active_skunk_animate)
+// Process stinkbombs and explosions
+iterate(stinkbombs, itor_stinkbomb_grow)
+iterate(explosions, itor_explosion_fade)
+iterate(active_skunks, itor_active_skunk_place_stinkbomb)
 // DRAW
 preserving_transform:
     set_transform(map_xform)
@@ -381,7 +410,10 @@ preserving_transform:
     // Offset by ½ a grid square so that we can use integer coordinates for the centers of grid tiles
     compose_transform(0.5 BLOCK_SIZE)
     iterate(active_skunks, draw_entity)
+    iterate(stinkbombs, draw_entity)
+    iterate(explosions, draw_entity)
     iterate(boxes, draw_entity)
+        
 bgm_draw_debug()
 
 leave

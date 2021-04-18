@@ -40,10 +40,29 @@
     "highscores": false,
     "description": "",
     "constants": {
-        "DEBUG_AI": {
-            "type": "boolean",
-            "value": true,
-            "description": "If true, draw some extra debug data pertaining to AI processing"
+        "INPUT_AUDIO_FRAME_OFFSET": {
+            "type": "number",
+            "value": "8",
+            "description": "How many frames between \"I push a button in time with a beat\" and \"quadplay registers that button press\"",
+            "min": 0,
+            "max": {
+                "type": "number",
+                "value": "30"
+            },
+            "format": "",
+            "quantum": 0
+        },
+        "INPUT_AUDIO_FRAME_TOLERANCE": {
+            "type": "number",
+            "value": "2",
+            "description": "How many frames off can a button press be from the target frame and still be counted?",
+            "min": 0,
+            "max": {
+                "type": "number",
+                "value": "8"
+            },
+            "format": "",
+            "quantum": 0
         }
     },
     "screenshot_tag": "Starter Example"
