@@ -1,0 +1,121 @@
+Cutscene
+════════════════════════════════════════════════════════════════════════
+
+const CMD_IMAGE = 1
+const CMD_TEXT = 2
+const CMD_FADE_OUT = 3
+const CMD_FADE_IN = 4
+const CMD_SOUND = 5
+const CMD_WAIT_FOR_INPUT = 6
+const CMD_SET_MODE = 7
+
+let advance = false
+let next_cmd_index = 0
+let cmd_start_frame = 0
+let image = ∅
+let text_args = {}
+let post_effects = {}
+let intro_timeline = []
+
+enter
+────────────────────────────────────────────────────────────────────────
+advance = false
+next_cmd_index = 0
+cmd_start_frame = 0
+image = ∅
+post_effects = {}
+text_args = {font:font, text:"", color:#f, pos:xy(0,0), wrap_width:0, text_size:0, z:1}
+
+reset_post_effects()
+post_effects = get_post_effects()
+
+intro_timeline = [
+    {cmd:CMD_FADE_OUT, color:#0, duration:0},
+    {cmd:CMD_IMAGE, image:cutscene1_sprite[0][0]},
+    {cmd:CMD_FADE_IN, color:#0, duration:60},
+    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:150, text:"This is line 1.\nThis is line 2.\nAnd this is line 3.", speed:1},
+    {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
+    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:150, text:"Here is more text. Rumpty tumpty bliggity bloog. Programmer art applies to text as well.", speed:.1},
+    {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
+    {cmd:CMD_IMAGE, image:cutscene2_sprite[0][0]},
+    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:150, text:"An ocean voyage.\nAs waves break over the bow,\nthe sea welcomes me.", speed:1},
+    {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
+    {cmd:CMD_FADE_OUT, color:#f00, duration:60},
+    {cmd:CMD_SET_MODE, mode:1},    
+    ]
+
+
+frame
+────────────────────────────────────────────────────────────────────────
+const cmds = intro_timeline
+assert(last_value(cmds).cmd == CMD_SET_MODE) // last command must exit this mode
+
+if advance:
+    next_cmd_index += 1
+    cmd_start_frame = mode_frames
+    advance = false
+// skip cutscenes with B
+if joy.bb:
+    next_cmd_index = size(cmds)-1
+
+assert(next_cmd_index < size(cmds))
+const next_cmd = cmds[next_cmd_index]
+// process next command
+if next_cmd.cmd == CMD_IMAGE:
+    image = next_cmd.image
+    advance = true
+else if next_cmd.cmd == CMD_FADE_OUT:
+    if next_cmd.duration == 0:
+        post_effects.color = next_cmd.color
+        post_effects.color.a = 1.0
+        advance = true
+    else:
+        const fade_t = (mode_frames - cmd_start_frame) / next_cmd.duration
+        post_effects.color = next_cmd.color
+        post_effects.color.a = fade_t
+        if fade_t ≥ 1.0:
+            advance = true
+else if next_cmd.cmd == CMD_FADE_IN:
+    if next_cmd.duration == 0:
+        post_effects.color = next_cmd.color
+        post_effects.color.a = 0.0
+        advance = true
+    else:
+        const fade_t = (mode_frames - cmd_start_frame) / next_cmd.duration
+        post_effects.color = next_cmd.color
+        post_effects.color.a = 1.0 - fade_t
+        if fade_t ≥ 1.0:
+            advance = true
+else if next_cmd.cmd == CMD_TEXT:
+    const text_len = size(next_cmd.text)
+    if mode_frames == cmd_start_frame:
+        text_args.text = next_cmd.text
+        text_args.pos = next_cmd.pos
+        text_args.color = next_cmd.color
+        text_args.wrap_width = next_cmd.wrap_width
+        text_args.text_size = 0
+    else:
+        text_args.text_size += next_cmd.speed
+    if any_button_press():
+        text_args.text_size = text_len
+    if text_args.text_size ≥ text_len:
+        advance = true
+else if next_cmd.cmd == CMD_WAIT_FOR_INPUT:
+    if (floor((mode_frames-cmd_start_frame) / 30) % 2) == 0:
+        draw_text({font:font, pos:next_cmd.pos, text:replace("Press (a)", joy.prompt),
+            x_align:"right", y_align:"bottom", color:#f, shadow:#0, z:10})
+    if any_button_press():
+        advance = true
+else if next_cmd.cmd == CMD_SET_MODE:
+    set_mode(Play) because "End of intro cutscene"
+
+// draw stuff
+set_post_effects(post_effects)
+if image ≠ ∅:
+    debug_watch(cutscene1_sprite.size)
+    draw_sprite({sprite:image, pos:50% SCREEN_SIZE})
+draw_text(text_args)
+    
+leave
+────────────────────────────────────────────────────────────────────────
+reset_post_effects()

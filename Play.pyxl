@@ -322,7 +322,7 @@ box_grid = []
 
 // In debug mode, we bypass the main menu and jump straight to play mode.
 // Set reasonable defaults.
-if get_previous_mode() == ∅:
+if get_previous_mode() == ∅ or player_infos == ∅:
     debug_print("Debug mode!")
     player_infos = [{
         gamepad: gamepad_array[0], // includes player index in gamepad.index

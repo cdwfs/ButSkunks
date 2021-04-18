@@ -14,9 +14,10 @@
         "PreGame",
         "PostGame",
         "Credits",
-        "Help"
+        "Help",
+        "Cutscene"
     ],
-    "start_mode": "Play",
+    "start_mode": "Cutscene",
     "docs": [],
     "assets": {
         "map_tiles_sprite": "map-tiles.sprite.json",
@@ -24,7 +25,9 @@
         "blocks_sprite": "quad://sprites/kenney-blocks-16x16.sprite.json",
         "font": "quad://fonts/weaver-7.font.json",
         "bgm_in_game_sound": "bgm_in_game.sound.json",
-        "skunk_sprite": "skunk.sprite.json"
+        "skunk_sprite": "skunk.sprite.json",
+        "cutscene1_sprite": "cutscene1.sprite.json",
+        "cutscene2_sprite": "cutscene2.sprite.json"
     },
     "version": 0,
     "min_players": 2,
