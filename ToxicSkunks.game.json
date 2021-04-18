@@ -19,15 +19,10 @@
     "start_mode": "Play",
     "docs": [],
     "assets": {
-        "engineer_sprite": "quad://sprites/dawnlike-engineer-16x16.sprite.json",
         "map_tiles_sprite": "map-tiles.sprite.json",
         "basement_map": "basement.map.json",
         "blocks_sprite": "quad://sprites/kenney-blocks-16x16.sprite.json",
-        "mage_sprite": "quad://sprites/dawnlike-mage-16x16.sprite.json",
-        "rogue_sprite": "quad://sprites/dawnlike-rogue-16x16.sprite.json",
-        "warrior_sprite": "quad://sprites/dawnlike-warrior-16x16.sprite.json",
         "font": "quad://fonts/weaver-7.font.json",
-        "large_font": "quad://fonts/weaver-10.font.json",
         "bgm_in_game_sound": "bgm_in_game.sound.json",
         "skunk_sprite": "skunk.sprite.json"
     },
