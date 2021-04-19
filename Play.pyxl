@@ -242,10 +242,11 @@ def itor_active_skunk_place_stinkbomb(skunk):
                 pos: map_cell_to_pos(icell),
                 scale: xy(0,0),
                 opacity: 0,
-                sprite: map_tiles_sprite.stink_reticle,
+                sprite: stinkbomb_sprite.outline,
                 source_skunk: skunk,
                 gamepad: skunk.gamepad,
                 start_frame: mode_frames,
+                z:10,
                 })
             push(stinkbombs, stinkbomb)
             //debug_print("pressed on frame: " + bgm_measure_f)
@@ -260,7 +261,7 @@ def itor_stinkbomb_grow(stinkbomb):
     with start_frame, scale, opacity, gamepad in stinkbomb:
         const size_t = clamp(mode_frames - start_frame, 0, BGM_FRAMES_PER_MEASURE) / (BGM_FRAMES_PER_MEASURE)
         opacity = 1
-        scale = 3 * size_t * size_t
+        scale = size_t * size_t
         if not gamepad.a:
             // stop growing. See whether the bomb succeeded. If so, spawn an explosion of the appropriate
             // size. Either way, destroy the bomb.
@@ -269,28 +270,60 @@ def itor_stinkbomb_grow(stinkbomb):
             const max_f = INPUT_AUDIO_FRAME_TOLERANCE
             //debug_print("size: " + scale + " frame: " + bgm_measure_f + "adjusted: " + release_measure_f)
             if release_measure_f ≥ min_f or release_measure_f ≤ max_f:
-                // bomb succeeds!
+                // bomb succeeds! spawn an explosion entity
                 const explosion = make_entity({
                     pos: stinkbomb.pos,
-                    sprite: map_tiles_sprite.stink,
+                    sprite: stinkbomb_sprite.stink,
                     start_frame: mode_frames,
+                    duration_frames: BGM_FRAMES_PER_MEASURE,
                     scale:stinkbomb.scale,
+                    z:10,
                     })
                 push(explosions, explosion)
             else:
                 // bomb fizzles
+            // Either way, despawn the stinkbomb and let the source skunk drop another one
             stinkbomb.source_skunk.active_stinkbombs -= 1
             return iterate.REMOVE
+
+// EXPLOSIONS
+
+// Record which cells have explosions in them
+// target: explosions
+// RO: map, explosion.pos, explosion.scale
+// RW: explosion_grid
+def itor_explosion_populate_grid(explosion):
+    const icell = map_pos_to_cell(explosion.pos)
+    // explosions above a certain scale affect their neighbor cells
+    if explosion.scale.x < ½:
+        explosion_grid[icell.x][icell.y] = explosion
+    else:
+        for dy in [-1,0,1]:
+            for dx in [-1,0,1]:
+                explosion_grid[icell.x+dx][icell.y+dy] = explosion
 
 // Destroy explosions after a while
 // target: explosions
 // RO:
 // RW:
 def itor_explosion_fade(explosion):
-    if mode_frames - explosion.start_frame > 10:
+    const age_f = mode_frames - explosion.start_frame
+    explosion.opacity = 1.0 - (age_f / explosion.duration_frames)
+    if age_f ≥ explosion.duration_frames:
         return iterate.REMOVE
-            
+
 // BOXES
+
+// Destroy boxes that have been hit by explosions.
+// target: boxes
+// RO: explosion_grid, box.pos
+// RW: boxes, box_grid
+def itor_box_break(box):
+    const icell = map_pos_to_cell(box.pos)
+    if explosion_grid[icell.x][icell.y] ≠ nil:
+        box_grid[icell.x][icell.y] = ∅
+        return iterate.REMOVE
+
 
 // GLOBALS
 // The *_grid arrays are 2D arrays. Unless otherwise mentioned, grid[x][y]
@@ -303,6 +336,7 @@ let active_skunks = []
 let active_skunk_grid = []
 let stinkbombs = []
 let explosions = []
+let explosion_grid = []
 let boxes = []
 let box_grid = []
 
@@ -317,6 +351,7 @@ active_skunks = []
 active_skunk_grid = []
 stinkbombs = []
 explosions = []
+explosion_grid = []
 boxes = []
 box_grid = []
 
@@ -400,8 +435,11 @@ iterate(active_skunks, itor_active_skunk_update_velocity)
 iterate(active_skunks, itor_active_skunk_move)
 iterate(active_skunks, itor_active_skunk_animate)
 // Process stinkbombs and explosions
-iterate(stinkbombs, itor_stinkbomb_grow)
 iterate(explosions, itor_explosion_fade)
+explosion_grid = make_array2d(map.size.x, map.size.y, ∅)
+iterate(explosions, itor_explosion_populate_grid)
+iterate(boxes, itor_box_break)
+iterate(stinkbombs, itor_stinkbomb_grow)
 iterate(active_skunks, itor_active_skunk_place_stinkbomb)
 // DRAW
 preserving_transform:

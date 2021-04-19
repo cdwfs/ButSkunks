@@ -1,0 +1,18 @@
+{
+    "url": "stinkbomb.png",
+    "sprite_size": {
+        "x": 48,
+        "y": 48
+    },
+    "names": {
+        "stink": {
+            "x": 1,
+            "y": 0
+        },
+        "outline": {
+            "x": 0,
+            "y": 0
+        }
+    },
+    "license": "TODO"
+}

@@ -6,14 +6,6 @@
     },
     "license": "TODO",
     "names": {
-        "stink": {
-            "x": 2,
-            "y": 2
-        },
-        "stink_reticle": {
-            "x": 1,
-            "y": 5
-        },
         "block": {
             "x": 1,
             "y": 0
