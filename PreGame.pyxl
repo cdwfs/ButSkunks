@@ -5,10 +5,6 @@ const PLAYER_STATE_INACTIVE = "INACTIVE"
 const PLAYER_STATE_ACTIVE = "ACTIVE"
 const PLAYER_STATE_READY = "READY"
 const ALL_BOMBER_SPRITES = [
-    engineer_sprite,
-    mage_sprite,
-    rogue_sprite,
-    warrior_sprite,
 ]
 def enter_menu_mode(data):
     reset_post_effects()
