@@ -216,8 +216,6 @@ def itor_active_skunk_move(skunk):
 def itor_active_skunk_kill(skunk):
     const icell = map_pos_to_cell(skunk.pos)
     if explosion_grid[icell.x][icell.y]:
-        play_sound(SND_skunk_DEATH)
-        delay(play_sound, 120, SND_skunk_DEATH2)
         push(dead_skunks, make_entity({
             pos: skunk.pos,
             sprite: death_sprite[0][0],
@@ -249,7 +247,6 @@ def itor_active_skunk_place_stinkbomb(skunk):
                 z:10,
                 })
             push(stinkbombs, stinkbomb)
-            //debug_print("pressed on frame: " + bgm_measure_f)
 
 // STINKBOMBS
 
