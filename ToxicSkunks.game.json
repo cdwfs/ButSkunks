@@ -53,7 +53,7 @@
         },
         "INPUT_AUDIO_FRAME_TOLERANCE": {
             "type": "number",
-            "value": "8",
+            "value": "2",
             "description": "How many frames off can a button press be from the target frame and still be counted?",
             "min": 0,
             "max": {
