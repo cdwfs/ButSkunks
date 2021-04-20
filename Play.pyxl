@@ -321,26 +321,27 @@ def itor_box_break(box):
         box_grid[icell.x][icell.y] = ∅
         return iterate.REMOVE
         
-// COUNTDOWN
-def draw_countdown_timer():
-    let t = clamp(mode_frames / (90*60), 0, 1)
-    const c = xy(350,20)
-    const rad = 10
-    const s = lerp(1.25, 1, smootherstep(0, 1, bgm_measure_t))
-    const sdt = (1-t)
-    const sdb = t
-    const dx = 6
-    const dy = 8
-    const glass_color = #f
-    const empty_color = rgba(0,0,0,0)
-    const sand_color = lerp(#f, #f00, smootherstep(0,1,t))
-    debug_watch(s)
-    // hourglass top -- draw empty glass, then sand at appropriate height
-    draw_tri({A:c, B:c+s*xy(dx,-dy), C:c+s*xy(-dx,-dy), color:empty_color, outline:glass_color, z:30})
-    draw_tri({A:c, B:c+s*sdt*xy(dx,-dy), C:c+s*sdt*xy(-dx,-dy), color:sand_color, outline:empty_color, z:29})
-    // hourglass bottom -- draw full glass, then empty at appropriate height
-    draw_tri({A:c, B:c+s*xy(dx,dy), C:c+s*xy(-dx,dy), color:sand_color, outline:glass_color, z:29})
-    draw_tri({A:c, B:c+s*sdt*xy(dx,dy), C:c+s*sdt*xy(-dx,dy), color:#0, outline:glass_color, z:30})
+// UI
+def draw_ui():
+    // Draw countdown timer
+    const MAX_LEVEL_MEASURE = 24*8
+    const elapsed_m = clamp(bgm_now_f/BGM_FRAMES_PER_MEASURE, 0, MAX_LEVEL_MEASURE)
+    const remain_m = MAX_LEVEL_MEASURE - elapsed_m
+    let c = lerp(#f, #f00, smoothstep(0.8, 0.9, elapsed_m/MAX_LEVEL_MEASURE))
+    draw_text({font:font, text:format_number(remain_m, "000.00"),
+        pos:xy(0.5,0.0)*SCREEN_SIZE, y_align:"top", x_align:"center", color:c, scale:1.5})
+    // Draw visual aid for explosion timing
+    const dot_y = 7
+    const line_len = 2*BGM_FRAMES_PER_MEASURE
+    const line_dx = 24
+    const p = xy(0.5*SCREEN_SIZE.x, dot_y)
+    draw_line({A:p-xy(line_dx,0), B:p-xy(line_dx+line_len,0), color:#f, z:0})
+    draw_line({A:p+xy(line_dx,0), B:p+xy(line_dx+line_len,0), color:#f, z:0})
+    draw_rect({pos:p-xy(line_dx+2*bgm_measure_f,0), color:#0f0, size:xy(3,3), z:1})
+    draw_rect({pos:p+xy(line_dx+2*bgm_measure_f,0), color:#0f0, size:xy(3,3), z:1})
+    const a = 1-bgm_measure_t
+    draw_rect({pos:p-xy(line_dx+line_len,0), color:rgba(0,1,0,a*a), size:xy(6,6), z:2})
+    draw_rect({pos:p+xy(line_dx+line_len,0), color:rgba(0,1,0,a*a), size:xy(6,6), z:2})
 
 // GLOBALS
 // The *_grid arrays are 2D arrays. Unless otherwise mentioned, grid[x][y]
@@ -468,7 +469,7 @@ preserving_transform:
     iterate(stinkbombs, draw_entity)
     iterate(explosions, draw_entity)
     iterate(boxes, draw_entity)
-draw_countdown_timer()
+draw_ui()
         
 //bgm_draw_debug()
 
