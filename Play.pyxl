@@ -323,7 +323,27 @@ def itor_box_break(box):
     if explosion_grid[icell.x][icell.y] ≠ nil:
         box_grid[icell.x][icell.y] = ∅
         return iterate.REMOVE
-
+        
+// COUNTDOWN
+def draw_countdown_timer():
+    let t = clamp(mode_frames / (90*60), 0, 1)
+    const c = xy(350,20)
+    const rad = 10
+    const s = lerp(1.25, 1, smootherstep(0, 1, bgm_measure_t))
+    const sdt = (1-t)
+    const sdb = t
+    const dx = 6
+    const dy = 8
+    const glass_color = #f
+    const empty_color = rgba(0,0,0,0)
+    const sand_color = lerp(#f, #f00, smootherstep(0,1,t))
+    debug_watch(s)
+    // hourglass top -- draw empty glass, then sand at appropriate height
+    draw_tri({A:c, B:c+s*xy(dx,-dy), C:c+s*xy(-dx,-dy), color:empty_color, outline:glass_color, z:30})
+    draw_tri({A:c, B:c+s*sdt*xy(dx,-dy), C:c+s*sdt*xy(-dx,-dy), color:sand_color, outline:empty_color, z:29})
+    // hourglass bottom -- draw full glass, then empty at appropriate height
+    draw_tri({A:c, B:c+s*xy(dx,dy), C:c+s*xy(-dx,dy), color:sand_color, outline:glass_color, z:29})
+    draw_tri({A:c, B:c+s*sdt*xy(dx,dy), C:c+s*sdt*xy(-dx,dy), color:#0, outline:glass_color, z:30})
 
 // GLOBALS
 // The *_grid arrays are 2D arrays. Unless otherwise mentioned, grid[x][y]
@@ -451,6 +471,7 @@ preserving_transform:
     iterate(stinkbombs, draw_entity)
     iterate(explosions, draw_entity)
     iterate(boxes, draw_entity)
+draw_countdown_timer()
         
 bgm_draw_debug()
 
