@@ -7,7 +7,7 @@
     "license": "TODO",
     "names": {
         "block": {
-            "x": 1,
+            "x": 3,
             "y": 0
         },
         "wall_outer": {

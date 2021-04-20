@@ -25,7 +25,7 @@ def enter_postgame_mode(data):
 def map_offset(m):
     const screen_size_in_blocks = SCREEN_SIZE / BLOCK_SIZE
     const map_size_in_blocks = map.size
-    return xy(4, 1) * BLOCK_SIZE
+    return xy(0, 1) * BLOCK_SIZE
 
 def map_pos_to_cell(pos):
     return round(pos / BLOCK_SIZE)
@@ -473,7 +473,7 @@ preserving_transform:
     iterate(boxes, draw_entity)
 draw_countdown_timer()
         
-bgm_draw_debug()
+//bgm_draw_debug()
 
 leave
 ────────────────────────────────────────────────────────────────────────
