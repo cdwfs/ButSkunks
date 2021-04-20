@@ -8,7 +8,11 @@ const PLAYER_SPAWN_SPRITES = [
     map_tiles_sprite.start_p3,
     map_tiles_sprite.start_p4,
 ]
-const FLOOR_SPRITE = map_tiles_sprite.floor
+const LEVEL_INFOS = [
+    {map: attic_map, floor_sprite:map_tiles_sprite.attic_floor},
+    {map: apartment_map, floor_sprite:map_tiles_sprite.apartment_floor},
+    {map: basement_map, floor_sprite:map_tiles_sprite.basement_floor},
+]
 
 const DIR_S = 0
 const DIR_W = 1
@@ -362,8 +366,8 @@ enter(player_infos)
 ────────────────────────────────────────────────────────────────────────
 
 // Initialize mode variables
-map = deep_clone(basement_map)
-map_xform = map_offset(map)
+map = nil
+map_xform = xy(0,0)
 players = []
 active_skunks = []
 active_skunk_grid = []
@@ -373,6 +377,7 @@ explosion_grid = []
 boxes = []
 box_grid = []
 
+let level_index = 0 // TODO: read this from mode parameter
 // In debug mode, we bypass the main menu and jump straight to play mode.
 // Set reasonable defaults.
 if get_previous_mode() == ∅ or player_infos == ∅:
@@ -381,6 +386,11 @@ if get_previous_mode() == ∅ or player_infos == ∅:
         gamepad: gamepad_array[0], // includes player index in gamepad.index
         sprite_sheet: skunk_sprite,
     }]
+    level_index = 0
+let level = LEVEL_INFOS[level_index]
+map = deep_clone(level.map)
+map_xform = map_offset(map)
+
     
 // Search map for starting cells, so we can look them up by player index
 let player_start_icells = []
@@ -393,7 +403,7 @@ for mx < map.size.x:
             if ms == PLAYER_SPAWN_SPRITES[p]:
                 player_start_icells[p] = icell
                 // overwrite the map cell with a normal floor sprite.
-                set_map_sprite(map, icell, FLOOR_SPRITE)
+                set_map_sprite(map, icell, level.floor_sprite)
 
 // Search map for box cells, replace them with floors, and spawn box entities
 box_grid = make_array2d(map.size.x, map.size.y, ∅)
@@ -410,7 +420,7 @@ for mx < map.size.x:
                 })
             push(boxes, box)
             box_grid[icell.x][icell.y] = box
-            set_map_sprite(map, icell, FLOOR_SPRITE)
+            set_map_sprite(map, icell, level.floor_sprite)
 
 // Create players and skunks
 for info in player_infos:

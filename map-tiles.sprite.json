@@ -14,10 +14,32 @@
             "x": 2,
             "y": 0
         },
-        "floor": {
+        "basement_floor": {
             "x": 7,
             "y": 0,
             "can_walk": true
+        },
+        "basement_wall": {
+            "x": 0,
+            "y": 4
+        },
+        "attic_floor": {
+            "x": 0,
+            "y": 6,
+            "can_walk": true
+        },
+        "attic_wall": {
+            "x": 0,
+            "y": 5
+        },
+        "apartment_floor": {
+            "x": 6,
+            "y": 0,
+            "can_walk": true
+        },
+        "apartment_wall": {
+            "x": 1,
+            "y": 4
         },
         "start_p1": {
             "x": 0,
