@@ -7,9 +7,11 @@ const BGM_FRAMES_PER_MEASURE = round(BGM_BEATS_PER_MEASURE * BGM_FRAMES_PER_BEAT
 
 const SND_MUSIC_INGAME = {sound:bgm_in_game_sound, volume:70%, loop:true}
 
+let bgm_now = -1 // elapsed time the music has been playing, in seconds.
+let bgm_now_f = -1 // elapsed time the music has been playing, in frames.
 let bgm_beat = -1 // whole-number beat
-let bgm_measure = -1 // whole-number measure (12 beats/measure)
-let bgm_beat_in_measure = -1 // whole-number beat index within each measure [0..11] 
+let bgm_measure = -1 // whole-number measure
+let bgm_beat_in_measure = -1 // whole-number beat index within each measure [0..BGM_BEATS_PER_MEASURE-1] 
 let bgm_beat_t = 0 // progress within the current beat [0..1]
 let bgm_measure_t = 0 // progress within the current measure [0..1]
 let bgm_beat_f = 0 // frame within the current beat [0..BGM_FRAMES_PER_BEAT-1]
@@ -42,7 +44,9 @@ def bgm_update():
     let prev_measure = bgm_measure
     let prev_beat_in_measure = bgm_beat_in_measure
     let status = get_audio_status(bgm_loops[0])
-    const f = status.now * 60
+    bgm_now = status.now
+    bgm_now_f = status.now * 60
+    const f = bgm_now_f
     bgm_beat = floor(f / BGM_FRAMES_PER_BEAT);
     bgm_measure = floor(f / BGM_FRAMES_PER_MEASURE)
     bgm_beat_in_measure = bgm_beat % BGM_BEATS_PER_MEASURE

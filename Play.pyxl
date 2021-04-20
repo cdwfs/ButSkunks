@@ -243,7 +243,7 @@ def itor_active_skunk_place_stinkbomb(skunk):
                 sprite: stinkbomb_sprite.outline,
                 source_skunk: skunk,
                 gamepad: skunk.gamepad,
-                start_frame: mode_frames,
+                start_frame: bgm_now_f,
                 z:10,
                 })
             push(stinkbombs, stinkbomb)
@@ -256,7 +256,7 @@ def itor_active_skunk_place_stinkbomb(skunk):
 // RW:
 def itor_stinkbomb_grow(stinkbomb):
     with start_frame, scale, opacity, gamepad in stinkbomb:
-        const size_t = clamp(mode_frames - start_frame, 0, BGM_FRAMES_PER_MEASURE) / (BGM_FRAMES_PER_MEASURE)
+        const size_t = clamp(bgm_now_f - start_frame, 0, BGM_FRAMES_PER_MEASURE) / (BGM_FRAMES_PER_MEASURE)
         opacity = 1
         scale = size_t * size_t
         if not gamepad.a:
