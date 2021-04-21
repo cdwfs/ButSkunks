@@ -33,13 +33,13 @@
         "apartment_map": "apartment.map.json"
     },
     "version": 0,
-    "min_players": 2,
-    "max_players": 4,
-    "cooperative": false,
-    "competitive": true,
+    "min_players": 1,
+    "max_players": 2,
+    "cooperative": true,
+    "competitive": false,
     "achievements": false,
     "highscores": false,
-    "description": "",
+    "description": "Skunks. Why did it have to be skunks?",
     "constants": {
         "INPUT_AUDIO_FRAME_OFFSET": {
             "type": "number",
