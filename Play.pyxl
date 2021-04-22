@@ -263,7 +263,7 @@ def itor_stinkbomb_grow(stinkbomb):
         const size_t = clamp(bgm_now_f - start_frame, 0, BGM_FRAMES_PER_MEASURE) / (BGM_FRAMES_PER_MEASURE)
         sprite = stinkbomb_sprite.outline.frame(mode_frames)
         opacity = 1
-        scale = size_t * size_t
+        scale = size_t * size_t * xy(1,1)
         if not gamepad.a:
             // stop growing. See whether the bomb succeeded. If so, spawn an explosion of the appropriate
             // size. Either way, destroy the bomb.
@@ -278,9 +278,12 @@ def itor_stinkbomb_grow(stinkbomb):
                     sprite: stinkbomb_sprite.stink.frame(0),
                     start_frame: mode_frames,
                     duration_frames: BGM_FRAMES_PER_MEASURE,
-                    scale:stinkbomb.scale,
+                    start_scale:scale,
+                    end_scale:0.75*scale,
+                    scale:scale,
                     z:10,
                     })
+                //debug_print("BOOM scale=" + scale)
                 push(explosions, explosion)
             else:
                 // bomb fizzles
@@ -312,7 +315,8 @@ def itor_explosion_fade(explosion):
     const age_f = mode_frames - explosion.start_frame
     explosion.sprite = stinkbomb_sprite.stink.frame(age_f)
     explosion.opacity = lerp(1, 0.25, smoothstep(0.25, 0.75, (age_f / explosion.duration_frames)))
-    explosion.scale = lerp(xy(1,1), xy(0.75,0.75), smoothstep(0.0, 1.0, (age_f / explosion.duration_frames)))
+    explosion.scale = lerp(explosion.start_scale, explosion.end_scale,
+        smoothstep(0.0, 1.0, (age_f / explosion.duration_frames)))
     if age_f ≥ explosion.duration_frames:
         return iterate.REMOVE
 
