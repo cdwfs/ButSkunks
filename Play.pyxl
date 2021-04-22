@@ -270,7 +270,7 @@ def itor_stinkbomb_grow(stinkbomb):
             const release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - AUDIO_LATENCY_FRAMES) % BGM_FRAMES_PER_MEASURE
             const min_f = BGM_FRAMES_PER_MEASURE - INPUT_AUDIO_FRAME_TOLERANCE
             const max_f = INPUT_AUDIO_FRAME_TOLERANCE
-            //debug_print("size: " + scale + " frame: " + bgm_measure_f + "adjusted: " + release_measure_f)
+            debug_print("released frame=" + bgm_measure_f + "adjusted=" + release_measure_f)
             if release_measure_f ≥ min_f or release_measure_f ≤ max_f:
                 // bomb succeeds! spawn an explosion entity
                 const explosion = make_entity({
@@ -283,7 +283,7 @@ def itor_stinkbomb_grow(stinkbomb):
                     scale:scale,
                     z:10,
                     })
-                //debug_print("BOOM scale=" + scale)
+                debug_print("BOOM scale=" + format_number(scale.x, "0.000"))
                 push(explosions, explosion)
             else:
                 // bomb fizzles
