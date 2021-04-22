@@ -452,11 +452,12 @@ for player in players:
     player.skunk = skunk
     player.lives -= 1
     
-if not bgm_is_playing():
-    let loops = [
-        SND_MUSIC_INGAME,
-    ]
-    bgm_start(loops)
+if bgm_is_playing():
+    bgm_stop()
+let loops = [
+    SND_MUSIC_INGAME,
+]
+bgm_start(loops)
 
 frame
 ────────────────────────────────────────────────────────────────────────

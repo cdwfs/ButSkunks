@@ -1,4 +1,7 @@
 const PLAYER_COLORS = [#f5a, #0af, #fd3, #4e4]
+const SND_CURSOR_MOVE = {sound:blip_sound, volume: 100%}
+const SND_CURSOR_ACCEPT = {sound:blip_sound, pitch:133%, volume: 100%}
+const SND_CURSOR_BACK = {sound:bloop_sound, volume: 100%}
 
 // Used to fade the screen to black during a mode transition
 def fade_out(frames_left, total_frames, data):

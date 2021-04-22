@@ -30,7 +30,11 @@
         "cutscene2_sprite": "cutscene2.sprite.json",
         "stinkbomb_sprite": "stinkbomb.sprite.json",
         "attic_map": "attic.map.json",
-        "apartment_map": "apartment.map.json"
+        "apartment_map": "apartment.map.json",
+        "bgm_menu_sound": "bgm_menu.sound.json",
+        "blip_sound": "blip.sound.json",
+        "bloop_sound": "bloop.sound.json",
+        "bgm_claps_sound": "bgm_claps.sound.json"
     },
     "version": 0,
     "min_players": 1,
