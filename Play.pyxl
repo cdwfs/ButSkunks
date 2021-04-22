@@ -339,13 +339,15 @@ def draw_ui():
         pos:xy(0.5,0.0)*SCREEN_SIZE, y_align:"top", x_align:"center", color:c, scale:1.5})
     // Draw visual aid for explosion timing
     const dot_y = 7
-    const line_len = 2*BGM_FRAMES_PER_MEASURE
+    const line_len = 4*BGM_FRAMES_PER_MEASURE
     const line_dx = 24
     const p = xy(0.5*SCREEN_SIZE.x, dot_y)
     draw_line({A:p-xy(line_dx,0), B:p-xy(line_dx+line_len,0), color:#f, z:0})
     draw_line({A:p+xy(line_dx,0), B:p+xy(line_dx+line_len,0), color:#f, z:0})
     draw_rect({pos:p-xy(line_dx+2*bgm_measure_f,0), color:#0f0, size:xy(3,3), z:1})
     draw_rect({pos:p+xy(line_dx+2*bgm_measure_f,0), color:#0f0, size:xy(3,3), z:1})
+    draw_rect({pos:p-xy(line_dx+2*BGM_FRAMES_PER_MEASURE+2*bgm_measure_f,0), color:#0f0, size:xy(3,3), z:1})
+    draw_rect({pos:p+xy(line_dx+2*BGM_FRAMES_PER_MEASURE+2*bgm_measure_f,0), color:#0f0, size:xy(3,3), z:1})
     const a = 1-bgm_measure_t
     draw_rect({pos:p-xy(line_dx+line_len,0), color:rgba(0,1,0,a*a), size:xy(6,6), z:2})
     draw_rect({pos:p+xy(line_dx+line_len,0), color:rgba(0,1,0,a*a), size:xy(6,6), z:2})
