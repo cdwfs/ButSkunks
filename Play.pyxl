@@ -267,7 +267,7 @@ def itor_stinkbomb_grow(stinkbomb):
         if not gamepad.a:
             // stop growing. See whether the bomb succeeded. If so, spawn an explosion of the appropriate
             // size. Either way, destroy the bomb.
-            const release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - INPUT_AUDIO_FRAME_OFFSET) % BGM_FRAMES_PER_MEASURE
+            const release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - AUDIO_LATENCY_FRAMES) % BGM_FRAMES_PER_MEASURE
             const min_f = BGM_FRAMES_PER_MEASURE - INPUT_AUDIO_FRAME_TOLERANCE
             const max_f = INPUT_AUDIO_FRAME_TOLERANCE
             //debug_print("size: " + scale + " frame: " + bgm_measure_f + "adjusted: " + release_measure_f)

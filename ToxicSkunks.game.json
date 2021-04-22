@@ -15,9 +15,10 @@
         "PostGame",
         "Credits",
         "Help",
-        "Cutscene"
+        "Cutscene",
+        "Options"
     ],
-    "start_mode": "Cutscene",
+    "start_mode": "Menu",
     "docs": [],
     "assets": {
         "map_tiles_sprite": "map-tiles.sprite.json",
@@ -45,18 +46,6 @@
     "highscores": false,
     "description": "Skunks. Why did it have to be skunks?",
     "constants": {
-        "INPUT_AUDIO_FRAME_OFFSET": {
-            "type": "number",
-            "value": "8",
-            "description": "How many frames between \"I push a button in time with a beat\" and \"quadplay registers that button press\"",
-            "min": 0,
-            "max": {
-                "type": "number",
-                "value": "30"
-            },
-            "format": "",
-            "quantum": 0
-        },
         "INPUT_AUDIO_FRAME_TOLERANCE": {
             "type": "number",
             "value": "2",

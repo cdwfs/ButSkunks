@@ -1,9 +1,10 @@
 Menu
 ════════════════════════════════════════════════════════════════════════
 const MENU_NEW_GAME = 0
-const MENU_HELP = 1
-const MENU_CREDITS = 2
-const MENU_ITEMS = ["New Game", "Help", "Credits"]
+const MENU_OPTIONS = 1
+const MENU_HELP = 2
+const MENU_CREDITS = 3
+const MENU_ITEMS = ["New Game", "Options", "Help", "Credits"]
 
 const MENU_ITEM_TEXT_ARGS = {font:font, color:#f, x_align:"left"}
 const MENU_CURSOR_TEXT_ARGS = {font:font, text:replace("(a)", gamepad_array[0].prompt), x_align:"right", color:#f}
@@ -12,6 +13,10 @@ def enter_play_mode(data):
     reset_post_effects()
     remove_frame_hooks_by_mode(Menu)
     set_mode(Cutscene) because "Choose New Game from menu"
+def enter_options_mode(data):
+    reset_post_effects()
+    remove_frame_hooks_by_mode(Menu)
+    set_mode(Options) because "Choose Options from menu"
 def enter_help_mode(data):
     reset_post_effects()
     remove_frame_hooks_by_mode(Menu)
@@ -29,9 +34,13 @@ enter
 current_menu_item = MENU_NEW_GAME
 disable_input = false
 
+bgm_load_audio_latency_frames()
+debug_print("loaded latency frames: " + AUDIO_LATENCY_FRAMES)
+
 if not bgm_is_playing():
     let loops = [
         {sound:bgm_menu_sound, loop:true, volume:100%},
+        {sound:bgm_claps_sound, loop:true, volume:0%},
         ]
     bgm_start(loops)
 
@@ -51,6 +60,10 @@ if not disable_input:
                 disable_input = true
                 play_sound(SND_CURSOR_ACCEPT)
                 add_frame_hook(fade_out, enter_play_mode, 30, ∅, {})
+            else if current_menu_item == MENU_OPTIONS:
+                disable_input = true
+                play_sound(SND_CURSOR_ACCEPT)
+                add_frame_hook(fade_out, enter_options_mode, 30, ∅, {})
             else if current_menu_item == MENU_HELP:
                 play_sound(SND_CURSOR_ACCEPT)
                 add_frame_hook(fade_out, enter_help_mode, 30, nil, {})
