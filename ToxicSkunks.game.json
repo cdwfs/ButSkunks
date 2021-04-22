@@ -67,6 +67,18 @@
             "type": "boolean",
             "value": true,
             "description": "If true, draw how far off the most recent button release was from the target frame (color coded by success/failure)"
+        },
+        "INPUT_LATENCY_CORRECTION_FACTOR": {
+            "type": "number",
+            "value": "0.33333",
+            "description": "How much to adjust the expected input latency by, when the player mis-times a bomb explosion. Higher values = correct more aggressively.",
+            "min": 0,
+            "max": {
+                "type": "number",
+                "value": "1"
+            },
+            "format": "",
+            "quantum": 0
         }
     },
     "screenshot_tag": "Starter Example"
