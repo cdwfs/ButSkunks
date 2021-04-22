@@ -270,9 +270,11 @@ def itor_stinkbomb_grow(stinkbomb):
             const release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - AUDIO_LATENCY_FRAMES) % BGM_FRAMES_PER_MEASURE
             const min_f = BGM_FRAMES_PER_MEASURE - INPUT_AUDIO_FRAME_TOLERANCE
             const max_f = INPUT_AUDIO_FRAME_TOLERANCE
-            debug_print("released frame=" + bgm_measure_f + "adjusted=" + release_measure_f)
+            let bomb_explodes = false
+            debug_last_bomb_release_f = release_measure_f
             if release_measure_f ≥ min_f or release_measure_f ≤ max_f:
                 // bomb succeeds! spawn an explosion entity
+                bomb_explodes = true
                 const explosion = make_entity({
                     pos: stinkbomb.pos,
                     sprite: stinkbomb_sprite.stink.frame(0),
@@ -283,10 +285,10 @@ def itor_stinkbomb_grow(stinkbomb):
                     scale:scale,
                     z:10,
                     })
-                debug_print("BOOM scale=" + format_number(scale.x, "0.000"))
                 push(explosions, explosion)
             else:
                 // bomb fizzles
+            debug_print("raw=" + bgm_measure_f + " adjusted=" + release_measure_f + (if bomb_explodes then " BOOM" else ""))
             // Either way, despawn the stinkbomb and let the source skunk drop another one
             stinkbomb.source_skunk.active_stinkbombs -= 1
             return iterate.REMOVE
@@ -370,6 +372,7 @@ let explosions = []
 let explosion_grid = []
 let boxes = []
 let box_grid = []
+let debug_last_bomb_release_f = 0
 
 enter(player_infos)
 ────────────────────────────────────────────────────────────────────────
@@ -385,6 +388,7 @@ explosions = []
 explosion_grid = []
 boxes = []
 box_grid = []
+debug_last_bomb_release_f = 0
 
 let level_index = 0 // TODO: read this from mode parameter
 // In debug mode, we bypass the main menu and jump straight to play mode.
@@ -491,7 +495,24 @@ preserving_transform:
     iterate(boxes, draw_entity)
 draw_ui()
         
-//bgm_draw_debug()
+if DEBUG_BGM_OVERLAY:
+    bgm_draw_debug()
+if DEBUG_BOMB_TIMING:
+    preserving_transform:
+        reset_transform()
+        let tp = xy(SCREEN_SIZE.x-2, 0)
+        const half_fpm = BGM_FRAMES_PER_MEASURE/2
+        const delta_f = if debug_last_bomb_release_f > half_fpm then (debug_last_bomb_release_f-BGM_FRAMES_PER_MEASURE) else debug_last_bomb_release_f
+        const tc = if abs(delta_f) ≤ INPUT_AUDIO_FRAME_TOLERANCE then #8f8 else #f88
+        draw_text({text:format_number(delta_f, " 0"), font:font,
+            pos:tp, x_align:"right", y_align:"top", color:tc})
+        tp.y += font.line_height
+        draw_text({text:format_number(AUDIO_LATENCY_FRAMES, " 0"), font:font,
+            pos:tp, x_align:"right", y_align:"top", color:#f})
+        tp.y += font.line_height
+        draw_text({text:format_number(INPUT_AUDIO_FRAME_TOLERANCE, " 0"), font:font,
+            pos:tp, x_align:"right", y_align:"top", color:#f})
+        tp.y += font.line_height
 
 leave
 ────────────────────────────────────────────────────────────────────────

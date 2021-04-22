@@ -57,6 +57,16 @@
             },
             "format": "",
             "quantum": 0
+        },
+        "DEBUG_BGM_OVERLAY": {
+            "type": "boolean",
+            "value": false,
+            "description": "If true, draw a debug overlay with background music status"
+        },
+        "DEBUG_BOMB_TIMING": {
+            "type": "boolean",
+            "value": true,
+            "description": "If true, draw how far off the most recent button release was from the target frame (color coded by success/failure)"
         }
     },
     "screenshot_tag": "Starter Example"
