@@ -244,7 +244,7 @@ def itor_active_skunk_place_stinkbomb(skunk):
                 pos: map_cell_to_pos(icell),
                 scale: xy(0,0),
                 opacity: 0,
-                sprite: stinkbomb_sprite.outline,
+                sprite: stinkbomb_sprite.outline.frame(0),
                 source_skunk: skunk,
                 gamepad: skunk.gamepad,
                 start_frame: bgm_now_f,
@@ -259,8 +259,9 @@ def itor_active_skunk_place_stinkbomb(skunk):
 // RO:
 // RW:
 def itor_stinkbomb_grow(stinkbomb):
-    with start_frame, scale, opacity, gamepad in stinkbomb:
+    with start_frame, scale, opacity, gamepad, sprite in stinkbomb:
         const size_t = clamp(bgm_now_f - start_frame, 0, BGM_FRAMES_PER_MEASURE) / (BGM_FRAMES_PER_MEASURE)
+        sprite = stinkbomb_sprite.outline.frame(mode_frames)
         opacity = 1
         scale = size_t * size_t
         if not gamepad.a:
@@ -274,7 +275,7 @@ def itor_stinkbomb_grow(stinkbomb):
                 // bomb succeeds! spawn an explosion entity
                 const explosion = make_entity({
                     pos: stinkbomb.pos,
-                    sprite: stinkbomb_sprite.stink,
+                    sprite: stinkbomb_sprite.stink.frame(0),
                     start_frame: mode_frames,
                     duration_frames: BGM_FRAMES_PER_MEASURE,
                     scale:stinkbomb.scale,
@@ -309,7 +310,9 @@ def itor_explosion_populate_grid(explosion):
 // RW:
 def itor_explosion_fade(explosion):
     const age_f = mode_frames - explosion.start_frame
-    explosion.opacity = 1.0 - (age_f / explosion.duration_frames)
+    explosion.sprite = stinkbomb_sprite.stink.frame(age_f)
+    explosion.opacity = lerp(1, 0.25, smoothstep(0.25, 0.75, (age_f / explosion.duration_frames)))
+    explosion.scale = lerp(xy(1,1), xy(0.75,0.75), smoothstep(0.0, 1.0, (age_f / explosion.duration_frames)))
     if age_f ≥ explosion.duration_frames:
         return iterate.REMOVE
 
