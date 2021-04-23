@@ -22,13 +22,14 @@ frame
 ────────────────────────────────────────────────────────────────────────
 bgm_update()
 if not disable_input:
+    const half_measure_f = BGM_FRAMES_PER_MEASURE/2 // snares beats are halfway through each measure
     for pad in gamepad_array: // any connected control can operate the menus
         if pad.bb != 0:
             disable_input = true
             play_sound(SND_CURSOR_BACK)
             add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
         if pad.aa ≠ 0:
-            const press_f = bgm_measure_f
+            const press_f = (bgm_measure_f + half_measure_f) % BGM_FRAMES_PER_MEASURE
             debug_print("frame: " + press_f)
             pop_front(beat_frame_offsets)
             push(beat_frame_offsets, press_f)
