@@ -11,12 +11,12 @@
     "modes": [
         "Play",
         "Menu",
-        "PreGame",
-        "PostGame",
+        "GameOver",
         "Credits",
         "Help",
         "Cutscene",
-        "Options"
+        "Options",
+        "Interstitial"
     ],
     "start_mode": "Menu",
     "docs": [],

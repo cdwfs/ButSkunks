@@ -1,0 +1,68 @@
+Interstitial
+════════════════════════════════════════════════════════════════════════
+def enter_menu_mode(data):
+    reset_post_effects()
+    remove_frame_hooks_by_mode(Interstitial)
+    let mode_data = {
+    }
+    set_mode(Menu) because "Return to main menu"
+def enter_play_mode(data):
+    reset_post_effects()
+    remove_frame_hooks_by_mode(Interstitial)
+    set_mode(Play, next_level_index) because "Proceed to next level"
+
+let disable_input = false
+let prev_level_index = 0
+let next_level_index = 0
+
+const LEVEL_NAMES = [
+    "Attic",
+    "Condo",
+    "Basement",
+]
+
+enter(in_prev_level_index)
+────────────────────────────────────────────────────────────────────────
+disable_input = false
+prev_level_index = 0
+next_level_index = 0
+
+// For now, just stop all music in this mode.
+// TODO: fade in subdued interstitial loop?
+bgm_stop()
+
+prev_level_index = in_prev_level_index;
+if      prev_level_index == 0:
+    next_level_index = 1
+else if prev_level_index == 1:
+    next_level_index = 2
+else if prev_level_index == 2:
+    next_level_index = -1
+
+frame
+────────────────────────────────────────────────────────────────────────
+// Handle input
+if not disable_input:
+    for pad in gamepad_array: // any connected control can operate the menus
+        if pad.bb ≠ 0:
+            disable_input = true
+            play_sound(SND_CURSOR_BACK)
+            add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
+        else if pad.aa ≠ 0:
+            disable_input = true
+            play_sound(SND_CURSOR_ACCEPT)
+            if next_level_index == -1:
+                // Victory! back to the main menu, for now.
+                add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
+            else:
+                add_frame_hook(fade_out, enter_play_mode, 30, ∅, {})
+
+draw_text({font:font, text:"You cleared the " + LEVEL_NAMES[prev_level_index] + "!", pos:xy(50% SCREEN_SIZE.x, 25% SCREEN_SIZE.y),
+        text_size:max(0,mode_frames/3), x_align:"center", color:#f}).y
+    
+draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
+    text:replace("(b) Return To Menu    (a) Continue", gamepad_array[0].prompt), color:#f, x_align:"center"})
+
+leave
+────────────────────────────────────────────────────────────────────────
+

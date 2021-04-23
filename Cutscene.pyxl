@@ -16,19 +16,23 @@ let image = ∅
 let text_args = {}
 let post_effects = {}
 let intro_timeline = []
+let level_index = 0
 
-enter
+enter(in_level_index)
 ────────────────────────────────────────────────────────────────────────
 advance = false
 next_cmd_index = 0
 cmd_start_frame = 0
 image = ∅
-post_effects = {}
 text_args = {font:font, text:"", color:#f, pos:xy(0,0), wrap_width:0, text_size:0, z:1}
+post_effects = {}
+intro_timeline = []
+level_index = in_level_index
 
 reset_post_effects()
 post_effects = get_post_effects()
 
+// TODO: select timeline based on level_index
 intro_timeline = [
     {cmd:CMD_FADE_OUT, color:#0, duration:0},
     {cmd:CMD_IMAGE, image:cutscene1_sprite[0][0]},
@@ -107,12 +111,11 @@ else if next_cmd.cmd == CMD_WAIT_FOR_INPUT:
     if any_button_press():
         advance = true
 else if next_cmd.cmd == CMD_SET_MODE:
-    set_mode(Play) because "End of intro cutscene"
+    set_mode(Play, level_index) because "End of cutscene"
 
 // draw stuff
 set_post_effects(post_effects)
 if image ≠ ∅:
-    debug_watch(cutscene1_sprite.size)
     draw_sprite({sprite:image, pos:50% SCREEN_SIZE})
 draw_text(text_args)
     

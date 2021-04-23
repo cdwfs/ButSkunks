@@ -21,10 +21,16 @@ const DIR_N = 3
 const OFFSET_FOR_DIR = [xy(0,1), xy(-1,0), xy(1,0), xy(0,-1)]
 const ANGLE_FOR_DIR = [-π/2, π, 0, π/2]
 
-def enter_postgame_mode(data):
+def enter_interstitial_mode(data):
     reset_post_effects()
     remove_frame_hooks_by_mode(Play)
-    set_mode(PostGame) because "Game ended"
+    set_mode(Interstitial, level_index) because "Completed level"
+def enter_gameover_mode(data):
+    reset_post_effects()
+    remove_frame_hooks_by_mode(Play)
+    set_mode(GameOver) because "Failed to complete level"
+
+const MAX_LEVEL_SECONDS = 60
 
 def map_offset(m):
     const screen_size_in_blocks = SCREEN_SIZE / BLOCK_SIZE
@@ -345,7 +351,6 @@ def itor_box_break(box):
 // UI
 def draw_ui():
     // Draw countdown timer
-    const MAX_LEVEL_SECONDS = 60
     const elapsed_sec = clamp(bgm_now, 0, MAX_LEVEL_SECONDS)
     const remain_sec = MAX_LEVEL_SECONDS - elapsed_sec
     let c = lerp(#f, #f00, smoothstep(0.8, 0.9, elapsed_sec/MAX_LEVEL_SECONDS))
@@ -394,8 +399,9 @@ let explosion_grid = []
 let boxes = []
 let box_grid = []
 let debug_last_bomb_release_f = 0
+let level_index = 0
 
-enter(player_infos)
+enter(in_level_index)
 ────────────────────────────────────────────────────────────────────────
 
 // Initialize mode variables
@@ -410,21 +416,21 @@ explosion_grid = []
 boxes = []
 box_grid = []
 debug_last_bomb_release_f = 0
+level_index = in_level_index
 
-let level_index = 0 // TODO: read this from mode parameter
 // In debug mode, we bypass the main menu and jump straight to play mode.
 // Set reasonable defaults.
-if get_previous_mode() == ∅ or player_infos == ∅:
+if size(player_infos) == 0:
     debug_print("Debug mode!")
     player_infos = [{
         gamepad: gamepad_array[0], // includes player index in gamepad.index
         sprite_sheet: skunk_sprite,
     }]
     level_index = 0
+
 let level = LEVEL_INFOS[level_index]
 map = deep_clone(level.map)
 map_xform = map_offset(map)
-
     
 // Search map for starting cells, so we can look them up by player index
 let player_start_icells = []
@@ -504,6 +510,13 @@ iterate(explosions, itor_explosion_populate_grid)
 iterate(boxes, itor_box_break)
 iterate(stinkbombs, itor_stinkbomb_grow)
 iterate(active_skunks, itor_active_skunk_place_stinkbomb)
+// Check for level-ending conditions
+if size(boxes) == 0:
+    // all boxes destroyed; move to next level
+    add_frame_hook(fade_out, enter_interstitial_mode, 30, ∅, {})
+if bgm_now ≥ MAX_LEVEL_SECONDS:
+    add_frame_hook(fade_out, enter_gameover_mode, 30, ∅, {})
+    
 // DRAW
 preserving_transform:
     set_transform(map_xform)

@@ -12,7 +12,7 @@ const MENU_CURSOR_TEXT_ARGS = {font:font, text:replace("(a)", gamepad_array[0].p
 def enter_play_mode(data):
     reset_post_effects()
     remove_frame_hooks_by_mode(Menu)
-    set_mode(Cutscene) because "Choose New Game from menu"
+    set_mode(Cutscene, data.level_index) because "Choose New Game from menu"
 def enter_options_mode(data):
     reset_post_effects()
     remove_frame_hooks_by_mode(Menu)
@@ -59,7 +59,10 @@ if not disable_input:
             if current_menu_item == MENU_NEW_GAME:
                 disable_input = true
                 play_sound(SND_CURSOR_ACCEPT)
-                add_frame_hook(fade_out, enter_play_mode, 30, ∅, {})
+                player_infos = [
+                    {gamepad: gamepad_array[0], sprite_sheet: skunk_sprite},
+                ]
+                add_frame_hook(fade_out, enter_play_mode, 30, ∅, {level_index:0})
             else if current_menu_item == MENU_OPTIONS:
                 disable_input = true
                 play_sound(SND_CURSOR_ACCEPT)

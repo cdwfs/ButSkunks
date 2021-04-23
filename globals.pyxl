@@ -10,3 +10,8 @@ def fade_out(frames_left, total_frames, data):
         color: rgb(t,t,t),
         blend_mode: "multiply"
         })
+        
+// one entry per player:
+// - gamepad
+// - sprite_sheet
+let player_infos = []
