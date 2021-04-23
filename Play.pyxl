@@ -218,6 +218,7 @@ def itor_active_skunk_move(skunk):
             // to prevent error from accumulating
             pos = vec_lerp(round(pos), pos, |sign(vel)|)
         assert(sv.x == 0 || sv.y == 0, "velocity " + vec_str(vel) + " must be all X or all Y")
+    entity_update_children(skunk)
 
 // Check for player death conditions. If true, move from active_skunks and add to dead_skunks.
 // target: active_skunks
@@ -237,17 +238,16 @@ def itor_active_skunk_kill(skunk):
 
 // Handle skunks placing stinkbombs.
 // target: active_skunks
-// RO: skunk.gamepad, skunk.pos, mode_frames
+// RO: skunk.gamepad, mode_frames
 // RW: bomb_grid, skunk.active_bomb_count
 def itor_active_skunk_place_stinkbomb(skunk):
-    with pos, gamepad, active_stinkbombs in skunk:
+    with gamepad, active_stinkbombs in skunk:
         if skunk.active_stinkbombs > 0:
             return
-        const icell = map_pos_to_cell(skunk.pos)
         if gamepad.a:
             active_stinkbombs += 1
             const stinkbomb = make_entity({
-                pos: map_cell_to_pos(icell),
+                pos_in_parent: xy(0, BLOCK_SIZE.y),
                 scale: xy(0,0),
                 opacity: 0,
                 sprite: stinkbomb_sprite.outline.frame(0),
@@ -256,6 +256,7 @@ def itor_active_skunk_place_stinkbomb(skunk):
                 start_frame: bgm_now_f,
                 z:10,
                 })
+            entity_add_child(skunk, stinkbomb)
             push(stinkbombs, stinkbomb)
 
 // STINKBOMBS
@@ -305,6 +306,7 @@ def itor_stinkbomb_grow(stinkbomb):
                 debug_print("delta=" + delta_f + ": latency adjusted from " + old_latency + " to " + AUDIO_LATENCY_FRAMES)            
             // Either way, despawn the stinkbomb and let the source skunk drop another one
             stinkbomb.source_skunk.active_stinkbombs -= 1
+            entity_remove_child(stinkbomb.source_skunk, stinkbomb)
             return iterate.REMOVE
 
 // EXPLOSIONS
