@@ -407,6 +407,8 @@ if size(player_infos) == 0:
     level_index = 0
 
 let level = LEVEL_INFOS[level_index]
+if DEBUG_USE_TEST_MAP:
+    level.map = art_test_map
 map = deep_clone(level.map)
 map_xform = map_offset(map)
     

@@ -22,6 +22,7 @@
     "docs": [],
     "assets": {
         "map_tiles_sprite": "map-tiles.sprite.json",
+        "art_test_map": "art_test.map.json",
         "basement_map": "basement.map.json",
         "font": "quad://fonts/weaver-7.font.json",
         "bgm_in_game_sound": "bgm_in_game.sound.json",
@@ -78,6 +79,10 @@
             },
             "format": "",
             "quantum": 0
+        },
+        "DEBUG_USE_TEST_MAP": {
+            "type": "boolean",
+            "value": true
         }
     },
     "screenshot_tag": "Starter Example"
