@@ -12,7 +12,7 @@ let next_beat_index = 0
 enter
 ────────────────────────────────────────────────────────────────────────
 disable_input = false
-beat_frame_offsets = [-1,-1,-1,-1, -1,-1,-1,-1,]
+beat_frame_offsets = [∅,∅,∅,∅,∅,∅,∅,∅,]
 next_beat_index = 0
 
 // fade in the calibration loop
@@ -22,26 +22,29 @@ frame
 ────────────────────────────────────────────────────────────────────────
 bgm_update()
 if not disable_input:
-    const half_measure_f = BGM_FRAMES_PER_MEASURE/2 // snares beats are halfway through each measure
     for pad in gamepad_array: // any connected control can operate the menus
         if pad.bb != 0:
             disable_input = true
             play_sound(SND_CURSOR_BACK)
             add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
         if pad.aa ≠ 0:
-            const press_f = (bgm_measure_f + half_measure_f) % BGM_FRAMES_PER_MEASURE
-            debug_print("frame: " + press_f)
+            const target_f = BGM_FRAMES_PER_MEASURE/2 // target frame is halfway through the measure, at the snare hit
+            const release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - target_f) % BGM_FRAMES_PER_MEASURE
+            const press_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - target_f) % BGM_FRAMES_PER_MEASURE
+            const half_fpm = BGM_FRAMES_PER_MEASURE/2
+            const delta_f = if press_f > half_fpm then (press_f-BGM_FRAMES_PER_MEASURE) else press_f
+            debug_print("frame: " + press_f + " delta: " + delta_f)
             pop_front(beat_frame_offsets)
-            push(beat_frame_offsets, press_f)
+            push(beat_frame_offsets, delta_f)
         
 AUDIO_LATENCY_FRAMES = 0
 let x_count = 0
 for x in beat_frame_offsets:
-    if x ≥ 0:
+    if x ≠ ∅:
         x_count += 1
         AUDIO_LATENCY_FRAMES += x
 if x_count > 0:
-    AUDIO_LATENCY_FRAMES = round(AUDIO_LATENCY_FRAMES / x_count)
+    AUDIO_LATENCY_FRAMES = (round(AUDIO_LATENCY_FRAMES / x_count) + BGM_FRAMES_PER_MEASURE) % BGM_FRAMES_PER_MEASURE
 
 const text_args = {font:font, x_align:"left", y_align:"top", color:#f}
 let line_y = 0
@@ -51,6 +54,8 @@ line_y += font.line_height
 draw_text({text:"Audio latency frames: " + AUDIO_LATENCY_FRAMES, pos:xy(0, line_y), ...text_args}).y
 line_y += font.line_height
 draw_text({text:"Frame tolerance: " + INPUT_AUDIO_FRAME_TOLERANCE, pos:xy(0, line_y), ...text_args}).y
+line_y += font.line_height
+draw_text({text:"offsets: " + join(beat_frame_offsets, " "), pos:xy(0, line_y), ...text_args}).y
 line_y += font.line_height
 
 draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
