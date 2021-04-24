@@ -149,10 +149,6 @@ def itor_active_skunk_update_velocity(skunk):
         else if |sg.y| > ε:
             next_vel = xy(0, sg.y * speed)
         
-        // TODO: figure out why this causes skunks to fly off through walls. Something
-        // about the speed changing mid-game violates some assumptions?
-        //speed = if gamepad.b ≠ 0 then 2 else 1
-        
         const at_center = at_cell_center(skunk)
         const vel_dir = direction(vel)
         const next_vel_dir = direction(next_vel)
@@ -194,7 +190,7 @@ def itor_active_skunk_animate(skunk):
 
 // Apply current velocity to skunk position, taking into account obstacles that block movement.
 // target: active_skunks
-// RO: bomb_grid, box_grid
+// RO: box_grid
 // RW: skunk.pos, skunk.vel
 def itor_active_skunk_move(skunk):
     const at_center = at_cell_center(skunk)
@@ -202,15 +198,11 @@ def itor_active_skunk_move(skunk):
         let sv = sign(vel)
         const icell = map_pos_to_cell(pos)
         const fcell = xy((pos.x/BLOCK_SIZE.x) % 1.0, (pos.y/BLOCK_SIZE.y) % 1.0)
-        // bombs stop movement halfway into the bomb's cell
-        let blocked_by_bomb = false
         // See if the move is possible, but only stop on centers
         if at_center and (not is_cell_empty(pos, vel) or box_grid[icell.x+sv.x][icell.y+sv.y]):
             // Hit wall. Stop moving
             vel = xy(0,0)
             sv = xy(0,0)
-        else if blocked_by_bomb:
-            // don't move. Don't clear velocity either, which seems risky?
         else:
             // Clear to move
             pos = pos + vel
@@ -219,22 +211,6 @@ def itor_active_skunk_move(skunk):
             pos = vec_lerp(round(pos), pos, |sign(vel)|)
         assert(sv.x == 0 || sv.y == 0, "velocity " + vec_str(vel) + " must be all X or all Y")
     entity_update_children(skunk)
-
-// Check for player death conditions. If true, move from active_skunks and add to dead_skunks.
-// target: active_skunks
-// RO: skunk.pos, explosion_grid, mode_frames
-// RW: skunk.death_frame, dead_skunks
-def itor_active_skunk_kill(skunk):
-    const icell = map_pos_to_cell(skunk.pos)
-    if explosion_grid[icell.x][icell.y]:
-        push(dead_skunks, make_entity({
-            pos: skunk.pos,
-            sprite: death_sprite[0][0],
-            z: skunk.z,
-            death_time: mode_frames,
-            player: skunk.player,
-            }))
-        return iterate.REMOVE
 
 // Handle skunks placing stinkbombs.
 // target: active_skunks
