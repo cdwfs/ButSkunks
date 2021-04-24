@@ -23,7 +23,6 @@
     "assets": {
         "map_tiles_sprite": "map-tiles.sprite.json",
         "basement_map": "basement.map.json",
-        "blocks_sprite": "quad://sprites/kenney-blocks-16x16.sprite.json",
         "font": "quad://fonts/weaver-7.font.json",
         "bgm_in_game_sound": "bgm_in_game.sound.json",
         "skunk_sprite": "skunk.sprite.json",
