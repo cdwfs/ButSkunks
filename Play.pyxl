@@ -321,12 +321,10 @@ def itor_enemy_ai(enemy):
             if box_grid[c.x][c.y]or not get_map_sprite(map, c, 0).can_walk:
                 break // stop searching at walls/boxes, but look in other directions
             else if active_skunk_grid[c.x][c.y]:
-                // move towards target (or away, if stunned)
-                const skunk = active_skunk_grid[c.x][c.y]
-                possible_move = if skunk.stun_angle > 0° then -offset else offset
+                // move away from skunks
+                possible_move = -offset
                 break
         if possible_move ≠ ∅:
-            let c = icell + possible_move
             enemy.gamepad.x = possible_move.x
             enemy.gamepad.xx = possible_move.x
             enemy.gamepad.y = possible_move.y
