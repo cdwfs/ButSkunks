@@ -20,6 +20,7 @@ const DIR_E = 2
 const DIR_N = 3
 const OFFSET_FOR_DIR = [xy(0,1), xy(-1,0), xy(1,0), xy(0,-1)]
 const ANGLE_FOR_DIR = [-π/2, π, 0, π/2]
+const NAME_FOR_DIR = ["S","W","E","N"]
 
 def enter_interstitial_mode(data):
     reset_post_effects()
@@ -100,9 +101,20 @@ def make_skunk_entity(player):
         speed: 1,
         active_stinkbombs: 0,
         })
+def make_enemy_entity(icell):
+    return make_entity({
+        sprite_sheet: human_sprite,
+        sprite: human_sprite.idle.frame(0),
+        pos: BLOCK_SIZE * icell,
+        gamepad: make_dummy_gamepad(),
+        vel: xy(0,0),
+        next_vel: xy(0,0),
+        dir: DIR_S,
+        speed: 1,
+        })
 
 // Construct a dummy gamepad object for use by AI players.
-def make_dummy_gamepad(player_index):
+def make_dummy_gamepad():
     return {
         x:0,
         y:0,
@@ -112,7 +124,7 @@ def make_dummy_gamepad(player_index):
         b:0,
         aa:0,
         bb:0,
-        index:player_index,
+        index:"enemy", // invalid; enemy gamepads have no index
         }
 
 // ACTIVE SKUNKS
@@ -237,11 +249,19 @@ def itor_active_skunk_place_stinkbomb(skunk):
 
 // ENEMIES
 
+// Record which cells have enemies in them
 // target: enemies
-// RO: enemy.pos, map, active_skunk_grid
+// RO: map, enemy.pos
+// RW: enemy_grid
+def itor_enemy_populate_grid(enemy):
+    const icell = map_pos_to_cell(enemy.pos)
+    enemy_grid[icell.x][icell.y] = enemy
+
+// target: enemies
+// RO: enemy.pos, enemy.dir, map, active_skunk_grid
 // RW: enemy.gamepad
 def itor_enemy_ai(enemy):
-    enemy.gamepad = make_dummy_gamepad(enemy.gamepad.index) // reset dummy gamepad state
+    enemy.gamepad = make_dummy_gamepad() // reset dummy gamepad state
     if not at_cell_center(enemy):
         return // AI only makes decisions at cell centers
     const icell = map_pos_to_cell(enemy.pos)
@@ -252,24 +272,37 @@ def itor_enemy_ai(enemy):
     for offset in OFFSET_FOR_DIR:
         for 1 ≤ d ≤ look_distance:
             const c = icell + d*offset
-            if not get_map_sprite(map, c, 0).can_walk:
-                break // stop searching at walls, but look in other directions
+            if box_grid[c.x][c.y]or not get_map_sprite(map, c, 0).can_walk:
+                break // stop searching at walls/boxes, but look in other directions
             else if active_skunk_grid[c.x][c.y]:
-                    // move towards target
-                    possible_move = offset
-                    break
-        // TODO: just move...somewhere. Ideally, pick a player and pathfind to them, and take a
-        // step in the right direction.
-        // ...but never move into a threatened cell (unless we're already in a threatened cell and escaping,
-        // as handled above)
+                // move towards target
+                possible_move = offset
+                break
         if possible_move ≠ ∅:
             let c = icell + possible_move
-            if not is_threatened_grid[c.x][c.y]:
-                enemy.gamepad.x = possible_move.x
-                enemy.gamepad.xx = possible_move.x
-                enemy.gamepad.y = possible_move.y
-                enemy.gamepad.yy = possible_move.y
-                return
+            enemy.gamepad.x = possible_move.x
+            enemy.gamepad.xx = possible_move.x
+            enemy.gamepad.y = possible_move.y
+            enemy.gamepad.yy = possible_move.y
+            return
+    // Can't see an enemy. Just walk in a random direction, with a preference towards maintaining
+    // the current direction.
+    let turn_choice = ξ
+    if      turn_choice < 0.2:
+        enemy.dir = (enemy.dir + 1) % 4
+    else if turn_choice < 0.4:
+        enemy.dir = (enemy.dir + 3) % 4
+    // Turn if we're walking into an obstacle
+    let current_dir_offset = OFFSET_FOR_DIR[enemy.dir]
+    let c = icell + current_dir_offset
+    while box_grid[c.x][c.y] or not get_map_sprite(map, c, 0).can_walk:
+        enemy.dir = (enemy.dir + 1) % 4
+        current_dir_offset = OFFSET_FOR_DIR[enemy.dir]
+        c = icell + current_dir_offset
+    enemy.gamepad.x = current_dir_offset.x
+    enemy.gamepad.xx = current_dir_offset.x
+    enemy.gamepad.y = current_dir_offset.y
+    enemy.gamepad.yy = current_dir_offset.y
 
 // STINKBOMBS
 
@@ -482,6 +515,17 @@ for mx < map.size.x:
             box_grid[icell.x][icell.y] = box
             set_map_sprite(map, icell, level.floor_sprite)
 
+// Search map for enemy cells, replace them with floors, and spawn enemy entities
+for mx < map.size.x:
+    for my < map.size.y:
+        const icell = xy(mx,my)
+        const ms = map[mx][my]
+        if ms == map_tiles_sprite.enemy:
+            const cell_pos = map_cell_to_pos(icell)
+            const enemy = make_enemy_entity(icell)
+            push(enemies, enemy)
+            set_map_sprite(map, icell, level.floor_sprite)
+
 // Create players and skunks
 for info in player_infos:
     if info == ∅:
@@ -502,7 +546,9 @@ for player in players:
     push(active_skunks, skunk)
     player.skunk = skunk
     player.lives -= 1
-    
+
+// Spawn enemies
+
 if bgm_is_playing():
     bgm_stop()
 let loops = [
@@ -516,9 +562,17 @@ frame
 bgm_update()
 
 // SIMULATE
-// Place remaining active skunks in grid
+// Place active skunks in grid
 active_skunk_grid = make_array2d(map.size.x, map.size.y, ∅)
 iterate(active_skunks, itor_active_skunk_populate_grid)
+// Place enemies in grid
+enemy_grid = make_array2d(map.size.x, map.size.y, ∅)
+iterate(enemies, itor_enemy_populate_grid)
+// Process enemies
+iterate(enemies, itor_enemy_ai)
+iterate(enemies, itor_active_skunk_update_velocity)
+iterate(enemies, itor_active_skunk_move)
+iterate(enemies, itor_active_skunk_animate)
 // Process active skunks
 iterate(active_skunks, itor_active_skunk_update_velocity)
 iterate(active_skunks, itor_active_skunk_move)
@@ -547,6 +601,7 @@ preserving_transform:
     iterate(stinkbombs, draw_entity)
     iterate(explosions, draw_entity)
     iterate(boxes, draw_entity)
+    iterate(enemies, draw_entity)
 draw_ui()
         
 if DEBUG_BGM_OVERLAY:
