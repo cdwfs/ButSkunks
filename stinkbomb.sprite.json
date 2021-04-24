@@ -15,9 +15,14 @@
                 "y": 1
             },
             "extrapolate": "clamp",
-            frames:[7,7,7,7],
+            "frames": [
+                7,
+                7,
+                7,
+                7
+            ]
         },
-        "outline": {
+        "charge": {
             "start": {
                 "x": 0,
                 "y": 0
@@ -26,7 +31,12 @@
                 "x": 2,
                 "y": 0
             },
-            "extrapolate": "loop"
+            "extrapolate": "loop",
+            "frames": [
+                2,
+                3,
+                2
+            ]
         }
     },
     "license": "TODO"
