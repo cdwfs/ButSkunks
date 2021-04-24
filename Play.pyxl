@@ -435,6 +435,17 @@ def itor_explosion_fade(explosion):
 
 // BOXES
 
+// Flash boxes in time with the music, both as an extra visual hint and to make them stand out against the
+// background.
+// target: boxes
+// RO: bgm_now_f
+// RW: box.override_color
+def itor_box_flash(box):
+    const target_f = BGM_FRAMES_PER_MEASURE / 2 // beats are halfway through each measure
+    const delta_f = (bgm_now_f % BGM_FRAMES_PER_MEASURE) - target_f
+    const fade_t = 1 - sqrt(clamp(abs(delta_f/7), 0, 1))
+    box.override_color = rgba(#ad4,fade_t)
+
 // Destroy boxes that have been hit by explosions.
 // target: boxes
 // RO: explosion_grid, box.pos
@@ -659,6 +670,7 @@ iterate(explosions, itor_explosion_fade)
 explosion_grid = make_array2d(map.size.x, map.size.y, ∅)
 iterate(explosions, itor_explosion_populate_grid)
 iterate(boxes, itor_box_break)
+iterate(boxes, itor_box_flash)
 iterate(breaking_boxes, itor_breaking_box_fade)
 iterate(stinkbombs, itor_stinkbomb_grow)
 iterate(active_skunks, itor_active_skunk_place_stinkbomb)
