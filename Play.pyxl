@@ -10,7 +10,7 @@ const PLAYER_SPAWN_SPRITES = [
 ]
 const LEVEL_INFOS = [
     {map: attic_map, floor_sprite:map_tiles_sprite.attic_floor},
-    {map: apartment_map, floor_sprite:map_tiles_sprite.apartment_floor},
+    {map: condo_map, floor_sprite:map_tiles_sprite.condo_floor},
     {map: basement_map, floor_sprite:map_tiles_sprite.basement_floor},
 ]
 
@@ -548,16 +548,19 @@ for mx < map.size.x:
                 // overwrite the map cell with a normal floor sprite.
                 set_map_sprite(map, icell, level.floor_sprite)
 
-// Search map for box cells, replace them with floors, and spawn box entities
+// Search map for tiles marked as destructible, replace them with the appropriate floor type in the map,
+// and spawn entities on top with the original sprite.
+// TODO: objects should just be a separate map layer.
 box_grid = make_array2d(map.size.x, map.size.y, ∅)
 for mx < map.size.x:
     for my < map.size.y:
         const icell = xy(mx,my)
         const ms = map[mx][my]
-        if ms == map_tiles_sprite.block:
+        if ms.destroyable:
             const cell_pos = map_cell_to_pos(icell)
+            // all destroyable entities are called boxes, for historical reasons
             const box = make_entity({
-                sprite: map_tiles_sprite[0][3],
+                sprite:ms,
                 pos: cell_pos,
                 z: 2,
                 })

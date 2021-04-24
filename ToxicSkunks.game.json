@@ -31,7 +31,7 @@
         "cutscene2_sprite": "cutscene2.sprite.json",
         "stinkbomb_sprite": "stinkbomb.sprite.json",
         "attic_map": "attic.map.json",
-        "apartment_map": "apartment.map.json",
+        "condo_map": "condo.map.json",
         "bgm_menu_sound": "bgm_menu.sound.json",
         "blip_sound": "blip.sound.json",
         "bloop_sound": "bloop.sound.json",

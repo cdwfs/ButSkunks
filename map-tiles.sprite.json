@@ -6,64 +6,26 @@
     },
     "license": "TODO",
     "names": {
-        "block": {
-            "x": 3,
-            "y": 0
-        },
-        "enemy": {
-            "x": 4,
-            "y": 0
-        },
-        "wall_outer": {
-            "x": 2,
-            "y": 0
-        },
-        "basement_floor": {
-            "x": 7,
-            "y": 0,
-            "can_walk": true
-        },
-        "basement_wall": {
-            "x": 0,
-            "y": 4
-        },
-        "attic_floor": {
-            "x": 0,
-            "y": 6,
-            "can_walk": true
-        },
-        "attic_wall": {
-            "x": 0,
-            "y": 5
-        },
-        "apartment_floor": {
-            "x": 6,
-            "y": 0,
-            "can_walk": true
-        },
-        "apartment_wall": {
-            "x": 1,
-            "y": 4
-        },
-        "start_p1": {
-            "x": 0,
-            "y": 1,
-            "can_walk": true
-        },
-        "start_p2": {
-            "x": 1,
-            "y": 1,
-            "can_walk": true
-        },
-        "start_p3": {
-            "x": 2,
-            "y": 1,
-            "can_walk": true
-        },
-        "start_p4": {
-            "x": 3,
-            "y": 1,
-            "can_walk": true
-        }
+        "enemy": { "x": 4, "y": 3 },
+        "basement_floor": { "x": 5, "y": 2, "can_walk": true },
+        "attic_floor": { "x": 5, "y": 1, "can_walk": true },
+        "condo_floor": { "x": 5, "y": 0, "can_walk": true },
+        "start_p1": { "x": 0, "y": 3, "can_walk": true },
+        "start_p2": { "x": 1, "y": 3, "can_walk": true },
+        "start_p3": { "x": 2, "y": 3, "can_walk": true },
+        "start_p4": { "x": 3, "y": 3, "can_walk": true },
+        "bed_red_t": { "x": 0, "y": 4, "destroyable": true },
+        "bed_red_b": { "x": 0, "y": 5, "destroyable": true },
+        "bed_red_broken_t": { "x": 1, "y": 4, "destroyable": true },
+        "bed_red_broken_b": { "x": 1, "y": 5, "destroyable": true },
+        "bed_green_t": { "x": 2, "y": 4, "destroyable": true },
+        "bed_green_b": { "x": 2, "y": 5, "destroyable": true },
+        "bed_green_broken_t": { "x": 3, "y": 4, "destroyable": true },
+        "bed_green_broken_b": { "x": 3, "y": 5, "destroyable": true },
+        "bed_blue_t": { "x": 4, "y": 4, "destroyable": true },
+        "bed_blue_b": { "x": 4, "y": 5, "destroyable": true },
+        "bed_blue_broken_t": { "x": 5, "y": 4, "destroyable": true },
+        "bed_blue_broken_b": { "x": 5, "y": 5, "destroyable": true },
+        "chest": { "x": 6, "y": 4, "destroyable": true }
     }
 }

@@ -1,5 +1,5 @@
 {
-    "url": "apartment.tmx",
+    "url": "condo.tmx",
     "license": "TODO",
     "sprite_url_table": {
         "<default>": "map-tiles.sprite.json"
