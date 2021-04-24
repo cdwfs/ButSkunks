@@ -442,9 +442,31 @@ def itor_explosion_fade(explosion):
 def itor_box_break(box):
     const icell = map_pos_to_cell(box.pos)
     if explosion_grid[icell.x][icell.y] ≠ nil:
-        box_grid[icell.x][icell.y] = ∅
+        box_grid[icell.x][icell.y] = ∅ // broken objects are immediately walkable
+        // "broken" version of each destroyable object is one tile to the right in the same sheet, by convention.
+        let tile = box.sprite.tile_index
+        let broken_sprite = box.sprite.spritesheet[tile.x+1][tile.y]
+        const bbox = make_entity({
+            sprite: broken_sprite,
+            pos: box.pos,
+            spawn_frame:mode_frames,
+            fade_frames: BGM_FRAMES_PER_MEASURE,
+            opacity:1.0,
+            z: box.z,
+            })
+        push(breaking_boxes, bbox)
         return iterate.REMOVE
-        
+
+// Fade broken boxes out of existence, and destroy them when they're gone.
+// target: breaking_boxes
+// RO: bbox.spawn_frame, bbox.fade_frames, mode_frames
+// RW: bbox.opacity
+def itor_breaking_box_fade(bbox):
+    const t = (mode_frames - bbox.spawn_frame) / bbox.fade_frames
+    bbox.opacity = lerp(1.0, 0.0, smootherstep(0.5, 1.0, t))
+    if t ≥ 1.0:
+        return iterate.REMOVE
+
 // UI
 def draw_ui():
     // Draw countdown timer
@@ -497,6 +519,7 @@ let explosions = []
 let explosion_grid = []
 let boxes = []
 let box_grid = []
+let breaking_boxes = []
 let debug_last_bomb_release_f = 0
 let level_index = 0
 
@@ -516,6 +539,7 @@ explosions = []
 explosion_grid = []
 boxes = []
 box_grid = []
+breaking_boxes = []
 debug_last_bomb_release_f = 0
 level_index = in_level_index
 
@@ -635,6 +659,7 @@ iterate(explosions, itor_explosion_fade)
 explosion_grid = make_array2d(map.size.x, map.size.y, ∅)
 iterate(explosions, itor_explosion_populate_grid)
 iterate(boxes, itor_box_break)
+iterate(breaking_boxes, itor_breaking_box_fade)
 iterate(stinkbombs, itor_stinkbomb_grow)
 iterate(active_skunks, itor_active_skunk_place_stinkbomb)
 // Handle stuns
@@ -659,6 +684,7 @@ preserving_transform:
     iterate(stinkbombs, draw_entity)
     iterate(explosions, draw_entity)
     iterate(boxes, draw_entity)
+    iterate(breaking_boxes, draw_entity)
     iterate(enemies, draw_entity)
 draw_ui()
         
