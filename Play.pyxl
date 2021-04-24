@@ -386,7 +386,7 @@ def itor_stinkbomb_grow(stinkbomb):
                     pos: stinkbomb.pos,
                     sprite: stinkbomb_sprite.stink.frame(0),
                     start_frame: mode_frames,
-                    duration_frames: BGM_FRAMES_PER_MEASURE,
+                    duration_frames: stinkbomb_sprite.stink.frames,
                     start_scale:scale,
                     end_scale:0.75*scale,
                     scale:scale,
