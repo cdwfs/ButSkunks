@@ -57,7 +57,7 @@
                 "value": "8"
             },
             "format": "",
-            "quantum": 0
+            "quantum": 1
         },
         "DEBUG_BGM_OVERLAY": {
             "type": "boolean",
