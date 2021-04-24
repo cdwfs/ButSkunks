@@ -99,6 +99,7 @@ def make_skunk_entity(player):
         next_vel: xy(0,0),
         dir: DIR_S,
         speed: 1,
+        stun_angle: 0°,    
         active_stinkbombs: 0,
         })
 def make_enemy_entity(icell):
@@ -111,6 +112,7 @@ def make_enemy_entity(icell):
         next_vel: xy(0,0),
         dir: DIR_S,
         speed: 1,
+        stun_angle: 0°,    
         })
 
 // Construct a dummy gamepad object for use by AI players.
@@ -142,6 +144,10 @@ def itor_active_skunk_populate_grid(skunk):
 // RO: map, skunk.pos, skunk.gamepad, skunk.speed, skunk.sprite_sheet
 // RW: skunk.next_vel, skunk.vel, skunk.dir, skunk.sprite
 def itor_active_skunk_update_velocity(skunk):
+    debug_watch(skunk.stun_angle)
+    // stunned entities don't process input
+    if skunk.stun_angle > 0°:
+        return
     // desired behavior:
     // - If we're already moving
     //   - ...and the same direction is already held, keep moving.
@@ -182,11 +188,34 @@ def itor_active_skunk_update_velocity(skunk):
             sv = xy(0,0)
             next_vel = xy(0,0)
 
+// Apply stuns to active skunks if they're touching humans.
+// target: active_skunks
+// RO: skunk.pos, enemy_grid
+// RW: skunk.stun_angle
+def itor_active_skunk_apply_stun(skunk):
+    // stunned skunks can not be re-stunned
+    if skunk.stun_angle > 0°:
+        return
+    const icell = map_pos_to_cell(skunk.pos)
+    if enemy_grid[icell.x][icell.y]:
+        skunk.stun_angle = 720°
+    
+// Update stun angle. stun_angle=0 -> unstunned. Otherwise, you spin in place.
+// target: active_skunks
+// RW: skunk.stun_angle
+def itor_active_skunk_update_stun(skunk):
+    skunk.stun_angle = max(0°, skunk.stun_angle - π/14)
+    
 // Update the animation for skunk sprites
 // target: active_skunks
 // RO: skunk.dir, skunk.vel, skunk.sprite_sheet
 // RW: skunk.sprite, skunk.angle
 def itor_active_skunk_animate(skunk):
+    // stunned entities just spin in place
+    if skunk.stun_angle > 0°:
+        skunk.anim = skunk.sprite_sheet.idle.frame(0)
+        skunk.angle = skunk.stun_angle
+        return
     with vel, dir, sprite, sprite_sheet in skunk:
         // Record desired upcoming turns based on gamepad state
         let sv = sign(vel)
@@ -198,13 +227,15 @@ def itor_active_skunk_animate(skunk):
         else if dir == DIR_W: skunk.angle = 90°
         else if dir == DIR_S: skunk.angle = 180°
         else if dir == DIR_E: skunk.angle = 270°
-        
 
 // Apply current velocity to skunk position, taking into account obstacles that block movement.
 // target: active_skunks
 // RO: box_grid
 // RW: skunk.pos, skunk.vel
 def itor_active_skunk_move(skunk):
+    // stunned entities can't move
+    if skunk.stun_angle > 0°:
+        return
     const at_center = at_cell_center(skunk)
     with vel, pos in skunk:
         let sv = sign(vel)
@@ -229,6 +260,9 @@ def itor_active_skunk_move(skunk):
 // RO: skunk.gamepad, mode_frames
 // RW: bomb_grid, skunk.active_bomb_count
 def itor_active_skunk_place_stinkbomb(skunk):
+    // stunned entities can't place stinkbombs
+    if skunk.stun_angle > 0°:
+        return
     with gamepad, active_stinkbombs in skunk:
         if skunk.active_stinkbombs > 0:
             return
@@ -257,6 +291,18 @@ def itor_enemy_populate_grid(enemy):
     const icell = map_pos_to_cell(enemy.pos)
     enemy_grid[icell.x][icell.y] = enemy
 
+// Apply stuns to active skunks if they're touching humans.
+// target: enemies
+// RO: enemy.pos, explosion_grid
+// RW: enemy.stun_angle
+def itor_enemy_apply_stun(enemy):
+    // stunned entities can not be re-stunned
+    if enemy.stun_angle > 0°:
+        return
+    const icell = map_pos_to_cell(enemy.pos)
+    if explosion_grid[icell.x][icell.y]:
+        enemy.stun_angle = 720°
+    
 // target: enemies
 // RO: enemy.pos, enemy.dir, map, active_skunk_grid
 // RW: enemy.gamepad
@@ -268,15 +314,16 @@ def itor_enemy_ai(enemy):
     // look in each direction and see what we see
     const look_distance = max(map.size.x, map.size.y) // edge walls will stop us from searching out of bounds
     let possible_move = ∅
-    // If we see a skunk in any direction, move towards it.
+    // If we see a skunk in any direction, move towards it. (unless it's stunned; in which case, move away.
     for offset in OFFSET_FOR_DIR:
         for 1 ≤ d ≤ look_distance:
             const c = icell + d*offset
             if box_grid[c.x][c.y]or not get_map_sprite(map, c, 0).can_walk:
                 break // stop searching at walls/boxes, but look in other directions
             else if active_skunk_grid[c.x][c.y]:
-                // move towards target
-                possible_move = offset
+                // move towards target (or away, if stunned)
+                const skunk = active_skunk_grid[c.x][c.y]
+                possible_move = if skunk.stun_angle > 0° then -offset else offset
                 break
         if possible_move ≠ ∅:
             let c = icell + possible_move
@@ -311,6 +358,11 @@ def itor_enemy_ai(enemy):
 // RO:
 // RW:
 def itor_stinkbomb_grow(stinkbomb):
+    // stinkbombs placed by stunned entities immediately fizzle
+    if stinkbomb.source_skunk.stun_angle > 0°:
+        stinkbomb.source_skunk.active_stinkbombs -= 1
+        entity_remove_child(stinkbomb.source_skunk, stinkbomb)
+        return iterate.REMOVE
     with start_frame, scale, opacity, gamepad, sprite in stinkbomb:
         const max_grow_frames = BGM_FRAMES_PER_MEASURE/2
         const size_t = clamp(bgm_now_f - start_frame, 0, max_grow_frames) / max_grow_frames
@@ -570,9 +622,9 @@ enemy_grid = make_array2d(map.size.x, map.size.y, ∅)
 iterate(enemies, itor_enemy_populate_grid)
 // Process enemies
 iterate(enemies, itor_enemy_ai)
-iterate(enemies, itor_active_skunk_update_velocity)
-iterate(enemies, itor_active_skunk_move)
-iterate(enemies, itor_active_skunk_animate)
+iterate(enemies, itor_active_skunk_update_velocity) // not a copy/paste error
+iterate(enemies, itor_active_skunk_move) // not a copy/paste error
+iterate(enemies, itor_active_skunk_animate) // not a copy/paste error
 // Process active skunks
 iterate(active_skunks, itor_active_skunk_update_velocity)
 iterate(active_skunks, itor_active_skunk_move)
@@ -584,6 +636,11 @@ iterate(explosions, itor_explosion_populate_grid)
 iterate(boxes, itor_box_break)
 iterate(stinkbombs, itor_stinkbomb_grow)
 iterate(active_skunks, itor_active_skunk_place_stinkbomb)
+// Handle stuns
+iterate(active_skunks, itor_active_skunk_apply_stun)
+iterate(active_skunks, itor_active_skunk_update_stun)
+iterate(enemies, itor_enemy_apply_stun)
+iterate(enemies, itor_active_skunk_update_stun) // not a copy/paste error
 // Check for level-ending conditions
 if size(boxes) == 0:
     // all boxes destroyed; move to next level
