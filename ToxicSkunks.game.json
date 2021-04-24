@@ -83,7 +83,7 @@
         },
         "DEBUG_USE_TEST_MAP": {
             "type": "boolean",
-            "value": true
+            "value": false
         }
     },
     "screenshot_tag": "Starter Example"
