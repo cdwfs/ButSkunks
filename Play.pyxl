@@ -31,7 +31,7 @@ def enter_gameover_mode(data):
     remove_frame_hooks_by_mode(Play)
     set_mode(GameOver) because "Failed to complete level"
 
-const MAX_LEVEL_SECONDS = 60
+const MAX_LEVEL_SECONDS = 90
 
 def map_offset(m):
     const screen_size_in_blocks = SCREEN_SIZE / BLOCK_SIZE
