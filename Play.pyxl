@@ -235,6 +235,42 @@ def itor_active_skunk_place_stinkbomb(skunk):
             entity_add_child(skunk, stinkbomb)
             push(stinkbombs, stinkbomb)
 
+// ENEMIES
+
+// target: enemies
+// RO: enemy.pos, map, active_skunk_grid
+// RW: enemy.gamepad
+def itor_enemy_ai(enemy):
+    enemy.gamepad = make_dummy_gamepad(enemy.gamepad.index) // reset dummy gamepad state
+    if not at_cell_center(enemy):
+        return // AI only makes decisions at cell centers
+    const icell = map_pos_to_cell(enemy.pos)
+    // look in each direction and see what we see
+    const look_distance = max(map.size.x, map.size.y) // edge walls will stop us from searching out of bounds
+    let possible_move = ∅
+    // If we see a skunk in any direction, move towards it.
+    for offset in OFFSET_FOR_DIR:
+        for 1 ≤ d ≤ look_distance:
+            const c = icell + d*offset
+            if not get_map_sprite(map, c, 0).can_walk:
+                break // stop searching at walls, but look in other directions
+            else if active_skunk_grid[c.x][c.y]:
+                    // move towards target
+                    possible_move = offset
+                    break
+        // TODO: just move...somewhere. Ideally, pick a player and pathfind to them, and take a
+        // step in the right direction.
+        // ...but never move into a threatened cell (unless we're already in a threatened cell and escaping,
+        // as handled above)
+        if possible_move ≠ ∅:
+            let c = icell + possible_move
+            if not is_threatened_grid[c.x][c.y]:
+                enemy.gamepad.x = possible_move.x
+                enemy.gamepad.xx = possible_move.x
+                enemy.gamepad.y = possible_move.y
+                enemy.gamepad.yy = possible_move.y
+                return
+
 // STINKBOMBS
 
 // Grow stinkbombs until they explode
@@ -371,6 +407,8 @@ let map_xform = xy(0,0)
 let players = []
 let active_skunks = []
 let active_skunk_grid = []
+let enemies = []
+let enemy_grid = []
 let stinkbombs = []
 let explosions = []
 let explosion_grid = []
@@ -388,6 +426,8 @@ map_xform = xy(0,0)
 players = []
 active_skunks = []
 active_skunk_grid = []
+enemies = []
+enemy_grid = []
 stinkbombs = []
 explosions = []
 explosion_grid = []
