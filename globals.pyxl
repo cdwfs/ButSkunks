@@ -13,5 +13,6 @@ def fade_out(frames_left, total_frames, data):
         
 // one entry per player:
 // - gamepad
-// - sprite_sheet
+// - idle_anim
+// - walk_anim
 let player_infos = []
