@@ -144,7 +144,6 @@ def itor_active_skunk_populate_grid(skunk):
 // RO: map, skunk.pos, skunk.gamepad, skunk.speed, skunk.sprite_sheet
 // RW: skunk.next_vel, skunk.vel, skunk.dir, skunk.sprite
 def itor_active_skunk_update_velocity(skunk):
-    debug_watch(skunk.stun_angle)
     // stunned entities don't process input
     if skunk.stun_angle > 0°:
         return
