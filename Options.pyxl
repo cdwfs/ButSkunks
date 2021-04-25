@@ -1,8 +1,6 @@
 Options
 ════════════════════════════════════════════════════════════════════════
 def enter_menu_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Options)
     set_mode(Menu) because "Return to main menu"
 
 let disable_input = false
@@ -64,5 +62,7 @@ draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
 leave
 ────────────────────────────────────────────────────────────────────────
 bgm_save_audio_latency_frames()
+reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())
 
 set_volume(bgm_loops[1], 0%)

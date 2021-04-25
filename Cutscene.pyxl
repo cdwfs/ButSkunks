@@ -122,3 +122,4 @@ draw_text(text_args)
 leave
 ────────────────────────────────────────────────────────────────────────
 reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())

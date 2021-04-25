@@ -23,12 +23,8 @@ const ANGLE_FOR_DIR = [-π/2, π, 0, π/2]
 const NAME_FOR_DIR = ["S","W","E","N"]
 
 def enter_interstitial_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Play)
     set_mode(Interstitial, level_index) because "Completed level"
 def enter_gameover_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Play)
     set_mode(GameOver) because "Failed to complete level"
 
 const MAX_LEVEL_SECONDS = 90
@@ -754,3 +750,5 @@ if DEBUG_BOMB_TIMING:
 
 leave
 ────────────────────────────────────────────────────────────────────────
+reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())

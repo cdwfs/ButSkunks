@@ -9,21 +9,13 @@ const MENU_ITEMS = ["New Game", "Options", "Help", "Credits"]
 const MENU_ITEM_TEXT_ARGS = {font:font, color:#f, x_align:"left"}
 const MENU_CURSOR_TEXT_ARGS = {font:font, text:replace("(a)", gamepad_array[0].prompt), x_align:"right", color:#f}
 
-def enter_play_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Menu)
+def enter_cutscene_mode(data):
     set_mode(Cutscene, data.level_index) because "Choose New Game from menu"
 def enter_options_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Menu)
     set_mode(Options) because "Choose Options from menu"
 def enter_help_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Menu)
     set_mode(Help) because "Choose Help from menu"
 def enter_credits_mode(data):
-    reset_post_effects()
-    remove_frame_hooks_by_mode(Menu)
     set_mode(Credits) because "Choose Credits from menu"
 
 let current_menu_item = MENU_NEW_GAME
@@ -62,7 +54,7 @@ if not disable_input:
                 player_infos = [
                     {gamepad: gamepad_array[0], sprite_sheet: skunk_sprite},
                 ]
-                add_frame_hook(fade_out, enter_play_mode, 30, ∅, {level_index:0})
+                add_frame_hook(fade_out, enter_cutscene_mode, 30, ∅, {level_index:0})
             else if current_menu_item == MENU_OPTIONS:
                 disable_input = true
                 play_sound(SND_CURSOR_ACCEPT)
@@ -92,3 +84,5 @@ for menu_item at i in MENU_ITEMS:
 
 leave
 ────────────────────────────────────────────────────────────────────────
+reset_post_effects()
+remove_frame_hooks_by_mode(get_mode())
