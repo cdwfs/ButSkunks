@@ -27,10 +27,6 @@ disable_input = false
 prev_level_index = 0
 next_level_index = 0
 
-// For now, just stop all music in this mode.
-// TODO: fade in subdued interstitial loop?
-bgm_stop()
-
 prev_level_index = in_prev_level_index;
 if      prev_level_index == 0:
     next_level_index = 1
@@ -41,6 +37,10 @@ else if prev_level_index == 2:
 
 frame
 ────────────────────────────────────────────────────────────────────────
+bgm_update()
+const crossfade = clamp(mode_frames/BGM_FRAMES_PER_MEASURE, 0, 1)
+set_volume(bgm_loops[0], sqrt(1-crossfade))
+set_volume(bgm_loops[1], sqrt(crossfade))
 // Handle input
 if not disable_input:
     for pad in gamepad_array: // any connected control can operate the menus
