@@ -11,7 +11,7 @@ const PLAYER_SPAWN_SPRITES = [
 const LEVEL_INFOS = [
     {map: attic_map, floor_sprite:map_tiles_sprite.attic_floor},
     {map: condo_map, floor_sprite:map_tiles_sprite.condo_floor},
-    {map: basement_map, floor_sprite:map_tiles_sprite.basement_floor},
+    {map: basement_map, floor_sprite:map_tiles_sprite.basement_floor, limit_visibility:true},
 ]
 
 const DIR_S = 0
@@ -687,9 +687,18 @@ if bgm_now ≥ MAX_LEVEL_SECONDS:
     add_frame_hook(fade_out, enter_gameover_mode, 30, ∅, {})
     
 // DRAW
+const limit_visibility = DEBUG_FORCE_LIMIT_VISIBILITY or LEVEL_INFOS[level_index].limit_visibility
 preserving_transform:
     set_transform(map_xform)
+    
+    const box_center_ss = transform_ws_to_ss(active_skunks[0].pos) + 0.5*BLOCK_SIZE
+    const box_corner_ss = box_center_ss - 3.5*BLOCK_SIZE
+    const box_size = 7*BLOCK_SIZE
+    if limit_visibility:
+        set_clip({pos:box_corner_ss, size:box_size})
+
     draw_map({map:map})
+    
     // Offset by ½ a grid square so that we can use integer coordinates for the centers of grid tiles
     compose_transform(0.5 BLOCK_SIZE)
     iterate(active_skunks, draw_entity)
@@ -698,6 +707,27 @@ preserving_transform:
     iterate(boxes, draw_entity)
     iterate(breaking_boxes, draw_entity)
     iterate(enemies, draw_entity)
+
+    if limit_visibility:
+        reset_clip()
+        // within the drawn box, dark pixels outside the light radius
+        const box_corner_ws = transform_ss_to_ws(box_corner_ss)
+        const box_center_ws = transform_ss_to_ws(box_center_ss)
+        const light_radius = box_size.x/2
+        const rad2 = light_radius*light_radius
+        const palette = alpha_palette_sprite[0]
+        const fade_start_t = 0.3
+        for box_corner_ws.y ≤ y < box_corner_ws.y+box_size.y:
+            for box_corner_ws.x ≤ x < box_corner_ws.x+box_size.x:
+                const p = xy(x,y)
+                const t = clamp(magnitude_squared(p-box_center_ws) / rad2, 0, 1)
+                //draw_point({pos:p, color:palette[CLAMP(floor(16*t), 0, 15)], z:20}) // bug at palette[0]
+                if t > fade_start_t:
+                    const a = smoothstep(fade_start_t, 1, t)
+                    //const c = palette[CLAMP(floor(MUL(16,a)), 0, 15)] // faster, but bug at palette[0]
+                    const c = rgba(#0,a)
+                    draw_point({pos:p, color:c, z:20})
+
 draw_ui()
         
 if DEBUG_BGM_OVERLAY:
