@@ -14,7 +14,7 @@ frame
 bgm_update()
 const crossfade = clamp(mode_frames/BGM_FRAMES_PER_MEASURE, 0, 1)
 set_volume(bgm_loops[0], sqrt(1-crossfade))
-set_volume(bgm_loops[1], sqrt(crossfade))
+set_volume(bgm_loops[2], sqrt(crossfade))
 // Handle input
 if not disable_input:
     for pad in gamepad_array: // any connected control can operate the menus

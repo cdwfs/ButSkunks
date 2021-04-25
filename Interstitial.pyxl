@@ -2,12 +2,21 @@ Interstitial
 ════════════════════════════════════════════════════════════════════════
 def enter_menu_mode(data):
     set_mode(Menu) because "Return to main menu"
-def enter_play_mode(data):
-    set_mode(Play, next_level_index) because "Proceed to next level"
 
-let disable_input = false
-let prev_level_index = 0
-let next_level_index = 0
+const MAX_FADE_FRAMES = 6*BGM_FRAMES_PER_MEASURE
+// Need a special fade-out function here, since we don't know exactly how many frames
+// it will take to reach the target point in the music.
+def fade_out_and_enter_game(frames_left, total_frames, data):
+    let t = fade_frame_count / MAX_FADE_FRAMES
+    let s = smoothstep(1,0,t)
+    set_post_effects({
+        //color: rgb(t,t,t),
+        //blend_mode: "multiply"
+        scale:xy(1,1) + s*xy(8,8)
+        })
+    fade_frame_count = clamp(fade_frame_count-1, 0, MAX_FADE_FRAMES)
+    if ((bgm_measure mod 4) == 3) and (bgm_measure_f == BGM_FRAMES_PER_MEASURE-1):
+        set_mode(Play, data.level_index) because "Started game"
 
 const LEVEL_NAMES = [
     "Attic",
@@ -15,11 +24,17 @@ const LEVEL_NAMES = [
     "Basement",
 ]
 
+let disable_input = false
+let prev_level_index = 0
+let next_level_index = 0
+let fade_frame_count = -1
+
 enter(in_prev_level_index)
 ────────────────────────────────────────────────────────────────────────
 disable_input = false
 prev_level_index = 0
 next_level_index = 0
+fade_frame_count = -1
 
 prev_level_index = in_prev_level_index;
 if      prev_level_index == 0:
@@ -34,7 +49,7 @@ frame
 bgm_update()
 const crossfade = clamp(mode_frames/BGM_FRAMES_PER_MEASURE, 0, 1)
 set_volume(bgm_loops[0], sqrt(1-crossfade))
-set_volume(bgm_loops[1], sqrt(crossfade))
+set_volume(bgm_loops[2], sqrt(crossfade))
 // Handle input
 if not disable_input:
     for pad in gamepad_array: // any connected control can operate the menus
@@ -49,7 +64,8 @@ if not disable_input:
                 // Victory! back to the main menu, for now.
                 add_frame_hook(fade_out, enter_menu_mode, 30, ∅, {})
             else:
-                add_frame_hook(fade_out, enter_play_mode, 30, ∅, {})
+                fade_frame_count = MAX_FADE_FRAMES
+                add_frame_hook(fade_out_and_enter_game, nil, infinity, get_mode(), {level_index:next_level_index})
 
 draw_text({font:font, text:"You cleared the " + LEVEL_NAMES[prev_level_index] + "!", pos:xy(50% SCREEN_SIZE.x, 25% SCREEN_SIZE.y),
         text_size:max(0,mode_frames/3), x_align:"center", color:#f}).y

@@ -637,7 +637,8 @@ if bgm_is_playing():
     bgm_stop()
 let loops = [
     SND_MUSIC_INGAME,
-    {sound:bgm_in_game_muted_sound, volume:0, loop:true},
+    {sound:bgm_in_game_intro_sound, loop:true, volume:0%},
+    {sound:bgm_in_game_muted_sound, loop:true, volume:0%,},
 ]
 bgm_start(loops)
 

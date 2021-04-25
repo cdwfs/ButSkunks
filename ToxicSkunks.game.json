@@ -38,7 +38,8 @@
         "bgm_claps_sound": "bgm_claps.sound.json",
         "human_sprite": "human.sprite.json",
         "alpha_palette_sprite": "alpha_palette.sprite.json",
-        "bgm_in_game_muted_sound": "bgm_in_game_muted.sound.json"
+        "bgm_in_game_muted_sound": "bgm_in_game_muted.sound.json",
+        "bgm_in_game_intro_sound": "bgm_in_game_intro.sound.json"
     },
     "version": 0,
     "min_players": 1,

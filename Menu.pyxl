@@ -32,6 +32,7 @@ debug_print("loaded latency frames: " + AUDIO_LATENCY_FRAMES)
 if not bgm_is_playing():
     let loops = [
         {sound:bgm_menu_sound, loop:true, volume:100%},
+        {sound:bgm_in_game_intro_sound, loop:true, volume:0%},
         {sound:bgm_claps_sound, loop:true, volume:0%},
         ]
     bgm_start(loops)
@@ -73,7 +74,6 @@ draw_text({font:font, x_align:"center", pos:title_pos,
 const title_offsets = [xy(1,0),xy(1,1),xy(0,1),xy(-1,1),xy(-1,0),xy(-1,-1),xy(0,-1),xy(1,-1)]
 draw_text({font:font, x_align:"center", pos:title_pos + array_value(title_offsets, mode_frames/3, "loop"),
     color:#840, text:"Toxic Skunks", z:-1})
-    
 
 let menu_offset = xy(45% SCREEN_SIZE.x, 50% SCREEN_SIZE.y)
 for menu_item at i in MENU_ITEMS:

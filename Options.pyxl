@@ -14,7 +14,7 @@ beat_frame_offsets = [∅,∅,∅,∅,∅,∅,∅,∅,]
 next_beat_index = 0
 
 // fade in the calibration loop
-set_volume(bgm_loops[1], 100%)
+set_volume(bgm_loops[2], 100%)
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
 leave
 ────────────────────────────────────────────────────────────────────────
 bgm_save_audio_latency_frames()
+// mute the calibration loop
+set_volume(bgm_loops[2], 0%)
 reset_post_effects()
 remove_frame_hooks_by_mode(get_mode())
-
-set_volume(bgm_loops[1], 0%)
