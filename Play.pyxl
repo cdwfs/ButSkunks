@@ -14,6 +14,13 @@ const LEVEL_INFOS = [
     {map: basement_map, floor_sprite:map_tiles_sprite.basement_floor, limit_visibility:true},
 ]
 
+const SND_STINKBOMB_CHARGE = {sound:charge_sound, volume: 70%}
+const SND_STINKBOMB_EXPLODE = {sound:explode_sound, volume: 80%}
+const SND_DESTROY = {sound:destroy_sound, volume: 90%}
+const SND_STUN_PLAYER = {sound:stun_player_sound, volume: 60%}
+const SND_STUN_ENEMY = {sound:stun_enemy_sound, volume: 60%}
+
+
 const DIR_S = 0
 const DIR_W = 1
 const DIR_E = 2
@@ -193,6 +200,7 @@ def itor_active_skunk_apply_stun(skunk):
         return
     const icell = map_pos_to_cell(skunk.pos)
     if enemy_grid[icell.x][icell.y]:
+        play_sound(SND_STUN_PLAYER)
         skunk.stun_angle = 720°
     
 // Update stun angle. stun_angle=0 -> unstunned. Otherwise, you spin in place.
@@ -274,6 +282,7 @@ def itor_active_skunk_place_stinkbomb(skunk):
                 z:10,
                 })
             entity_add_child(skunk, stinkbomb)
+            skunk.charging_sound = play_sound({time:random(0,0.05), pitch:random(0.9, 1.1), ...SND_STINKBOMB_CHARGE})
             push(stinkbombs, stinkbomb)
 
 // ENEMIES
@@ -296,6 +305,7 @@ def itor_enemy_apply_stun(enemy):
         return
     const icell = map_pos_to_cell(enemy.pos)
     if explosion_grid[icell.x][icell.y]:
+        play_sound(SND_STUN_ENEMY)
         enemy.stun_angle = 720°
     
 // target: enemies
@@ -353,6 +363,8 @@ def itor_enemy_ai(enemy):
 def itor_stinkbomb_grow(stinkbomb):
     // stinkbombs placed by stunned entities immediately fizzle
     if stinkbomb.source_skunk.stun_angle > 0°:
+        stop_audio(stinkbomb.source_skunk.charging_sound)
+        stinkbomb.source_skunk.charging_sound = nil
         stinkbomb.source_skunk.active_stinkbombs -= 1
         entity_remove_child(stinkbomb.source_skunk, stinkbomb)
         return iterate.REMOVE
@@ -363,6 +375,8 @@ def itor_stinkbomb_grow(stinkbomb):
         opacity = 1
         scale = size_t * size_t * xy(1,1)
         if not gamepad.a:
+            stop_audio(stinkbomb.source_skunk.charging_sound)
+            stinkbomb.source_skunk.charging_sound = nil
             // stop growing. See whether the bomb succeeded. If so, spawn an explosion of the appropriate
             // size. Either way, destroy the bomb.
             const latency_f = round(AUDIO_LATENCY_FRAMES)
@@ -374,6 +388,7 @@ def itor_stinkbomb_grow(stinkbomb):
             debug_last_bomb_release_f = adjusted_release_measure_f
             if abs(delta_f) ≤ INPUT_AUDIO_FRAME_TOLERANCE:
                 // bomb succeeds! spawn an explosion entity
+                play_sound({time:random(0,0.05), pitch:random(0.9, 1.1), ...SND_STINKBOMB_EXPLODE})
                 bomb_explodes = true
                 const explosion = make_entity({
                     pos: stinkbomb.pos,
@@ -448,6 +463,7 @@ def itor_box_flash(box):
 def itor_box_break(box):
     const icell = map_pos_to_cell(box.pos)
     if explosion_grid[icell.x][icell.y] ≠ nil:
+        play_sound({time:random(0,0.05), pitch:random(0.9, 1.1), ...SND_DESTROY})
         box_grid[icell.x][icell.y] = ∅ // broken objects are immediately walkable
         // "broken" version of each destroyable object is one tile to the right in the same sheet, by convention.
         let tile = box.sprite.tile_index
