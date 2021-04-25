@@ -315,35 +315,35 @@ def itor_enemy_ai(enemy):
     const look_distance = max(map.size.x, map.size.y) // edge walls will stop us from searching out of bounds
     let possible_move = ∅
     // If we see a skunk in any direction, move towards it. (unless it's stunned; in which case, move away.
-    for offset in OFFSET_FOR_DIR:
+    let skunk_in_dir = [false,false,false,false]
+    for dir in [0,1,2,3]:
+        let offset = OFFSET_FOR_DIR[dir]
         for 1 ≤ d ≤ look_distance:
             const c = icell + d*offset
             if box_grid[c.x][c.y]or not get_map_sprite(map, c, 0).can_walk:
                 break // stop searching at walls/boxes, but look in other directions
             else if active_skunk_grid[c.x][c.y]:
-                // move away from skunks
-                possible_move = -offset
+                // spotted a skunk
+                skunk_in_dir[dir] = true
                 break
-        if possible_move ≠ ∅:
-            enemy.gamepad.x = possible_move.x
-            enemy.gamepad.xx = possible_move.x
-            enemy.gamepad.y = possible_move.y
-            enemy.gamepad.yy = possible_move.y
-            return
-    // Can't see an enemy. Just walk in a random direction, with a preference towards maintaining
-    // the current direction.
+    // Just walk in a random direction, with a preference towards maintaining
+    // the current direction, but never move towards a visible skunk.
     let turn_choice = ξ
-    if      turn_choice < 0.2:
+    if      turn_choice < 0.3:
         enemy.dir = (enemy.dir + 1) % 4
-    else if turn_choice < 0.4:
+    else if turn_choice < 0.6:
         enemy.dir = (enemy.dir + 3) % 4
-    // Turn if we're walking into an obstacle
+    // Turn if we're walking into an obstacle, or towards a skunk
+    let checked_dir_count = 0
     let current_dir_offset = OFFSET_FOR_DIR[enemy.dir]
     let c = icell + current_dir_offset
-    while box_grid[c.x][c.y] or not get_map_sprite(map, c, 0).can_walk:
+    while box_grid[c.x][c.y] or skunk_in_dir[enemy.dir] or not get_map_sprite(map, c, 0).can_walk:
         enemy.dir = (enemy.dir + 1) % 4
         current_dir_offset = OFFSET_FOR_DIR[enemy.dir]
         c = icell + current_dir_offset
+        checked_dir_count += 1
+        if checked_dir_count ≥ 4:
+            break
     enemy.gamepad.x = current_dir_offset.x
     enemy.gamepad.xx = current_dir_offset.x
     enemy.gamepad.y = current_dir_offset.y
