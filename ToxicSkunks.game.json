@@ -9,13 +9,13 @@
         "music.pyxl"
     ],
     "modes": [
-        "Play",
         "Menu",
-        "GameOver",
-        "Credits",
-        "Help",
-        "Cutscene",
         "Options",
+        "Help",
+        "Credits",
+        "Cutscene",
+        "Play",
+        "GameOver",
         "Interstitial"
     ],
     "start_mode": "Menu",
