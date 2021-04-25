@@ -91,6 +91,11 @@
             "type": "boolean",
             "value": false,
             "description": "Force the \"limit_visiblity\" effect in all levels"
+        },
+        "DEBUG_CHEATS": {
+            "type": "boolean",
+            "value": true,
+            "description": "If enabled, various unused gamepad buttons are used to trigger cheats at runtime"
         }
     },
     "screenshot_tag": "Starter Example"
