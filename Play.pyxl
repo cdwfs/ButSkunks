@@ -377,7 +377,7 @@ def itor_stinkbomb_grow(stinkbomb):
         const size_t = clamp(bgm_now_f - start_frame, 0, max_grow_frames) / max_grow_frames
         sprite = stinkbomb_sprite.charge.frame(mode_frames)
         opacity = 1
-        scale = size_t * size_t * xy(1,1)
+        scale = size_t * size_t * size_t * xy(1,1)
         if not gamepad.a:
             stop_audio(stinkbomb.source_skunk.charging_sound)
             stinkbomb.source_skunk.charging_sound = nil
@@ -390,27 +390,41 @@ def itor_stinkbomb_grow(stinkbomb):
             const delta_f = if adjusted_release_measure_f > half_fpm then (adjusted_release_measure_f-BGM_FRAMES_PER_MEASURE) else adjusted_release_measure_f
             let bomb_explodes = false
             debug_last_bomb_release_f = adjusted_release_measure_f
+            let explosion = make_entity({
+                pos: stinkbomb.pos,
+                sprite: stinkbomb_sprite.stink.frame(0),
+                start_frame: mode_frames,
+                duration_frames: stinkbomb_sprite.stink.frames,
+                source_skunk:stinkbomb.source_skunk,
+                start_scale:scale,
+                end_scale:0.75*scale,
+                scale:scale,
+                font:font,
+                text_x_align:"center",
+                text_y_align:"bottom",
+                text_offset:xy(0,0),
+                text_color:#4f4f,
+                text_shadow:#0,
+                z:10,
+                })
             if abs(delta_f) ≤ INPUT_AUDIO_FRAME_TOLERANCE:
                 // bomb succeeds! spawn an explosion entity
                 play_sound({time:random(0,0.05), pitch:random(0.9, 1.1), ...SND_STINKBOMB_EXPLODE})
                 bomb_explodes = true
                 stinkbomb.source_skunk.player.stats.explode_count += 1
+                explosion.text = random_value(["NICE","GREAT","GOOD"])
                 if delta_f == 0:
+                    explosion.text = "PERFECT!"
                     stinkbomb.source_skunk.player.stats.perfect_explode_count += 1
-                const explosion = make_entity({
-                    pos: stinkbomb.pos,
-                    sprite: stinkbomb_sprite.stink.frame(0),
-                    start_frame: mode_frames,
-                    duration_frames: stinkbomb_sprite.stink.frames,
-                    source_skunk:stinkbomb.source_skunk,
-                    start_scale:scale,
-                    end_scale:0.75*scale,
-                    scale:scale,
-                    z:10,
-                    })
-                push(explosions, explosion)
             else:
-                // bomb fizzles.                
+                // bomb fizzles, but create a dummy explosion entity anyway so we can hang a label on it
+                explosion.sprite = ∅
+                explosion.start_scale = xy(0,0)
+                explosion.end_scale = xy(0,0)
+                explosion.scale = xy(0,0)
+                explosion.text = if delta_f < 0 then "EARLY" else "LATE"
+                explosion.text_color = #f44f
+            push(explosions, explosion)
             debug_print("raw=" + bgm_measure_f + " adjusted=" + adjusted_release_measure_f + " delta=" + delta_f + (if bomb_explodes then " BOOM" else ""))
             // Help the player by adjusting the latency towards their actual input time.
             if abs(delta_f) < INPUT_AUDIO_FRAME_TOLERANCE*3:
@@ -431,7 +445,9 @@ def itor_stinkbomb_grow(stinkbomb):
 def itor_explosion_populate_grid(explosion):
     const icell = map_pos_to_cell(explosion.pos)
     // explosions above a certain scale affect their neighbor cells
-    if explosion.scale.x < ½:
+    if explosion.scale ≤ 0:
+        return
+    else if explosion.scale.x < 0.5:
         explosion_grid[icell.x][icell.y] = explosion
     else:
         for dy in [-1,0,1]:
@@ -444,12 +460,14 @@ def itor_explosion_populate_grid(explosion):
 // RW:
 def itor_explosion_fade(explosion):
     const age_f = mode_frames - explosion.start_frame
-    explosion.sprite = stinkbomb_sprite.stink.frame(age_f)
-    explosion.opacity = lerp(1, 0.25, smoothstep(0.25, 0.75, (age_f / explosion.duration_frames)))
-    explosion.scale = lerp(explosion.start_scale, explosion.end_scale,
-        smoothstep(0.0, 1.0, (age_f / explosion.duration_frames)))
     if age_f ≥ explosion.duration_frames:
         return iterate.REMOVE
+    const age_t = clamp(age_f / explosion.duration_frames, 0, 1)
+    if explosion.scale.x > 0:
+        explosion.sprite = stinkbomb_sprite.stink.frame(age_f)
+        explosion.opacity = lerp(1, 0.25, smoothstep(0.25, 0.75, age_t))
+        explosion.scale = lerp(explosion.start_scale, explosion.end_scale, smoothstep(0.0, 1.0, age_t))
+        explosion.text_color.a = 1 - smoothstep(0.75,1,age_t)
 
 // BOXES
 

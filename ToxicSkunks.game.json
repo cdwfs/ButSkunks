@@ -74,7 +74,7 @@
         },
         "DEBUG_BOMB_TIMING": {
             "type": "boolean",
-            "value": true,
+            "value": false,
             "description": "If true, draw how far off the most recent button release was from the target frame (color coded by success/failure)"
         },
         "INPUT_LATENCY_CORRECTION_FACTOR": {
