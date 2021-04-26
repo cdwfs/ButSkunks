@@ -767,24 +767,6 @@ preserving_transform:
             set_clip({pos:corner_ss, size:box_size})
             draw_game()
             reset_clip()
-        /*
-        // within the drawn box, darken pixels outside the radius of all lights
-        const light_radius = box_size.x/2
-        const rad2 = light_radius*light_radius
-        for i_player < size(players):
-            const corner_ws = box_corners_ws[i_player]
-            const extent_ws = corner_ws + box_size
-            const center_ws = box_centers_ws[i_player]
-            for corner_ws.y ≤ y ≤ extent_ws.y:
-                for corner_ws.x ≤ x ≤ extent_ws.x:
-                    const p = xy(x,y)
-                    let dist2_to_light = infinity
-                    for i_player2 < size(players):
-                        const center2_ws = box_centers_ws[i_player2]
-                        dist2_to_light = min(dist2_to_light, magnitude_squared(p-center2_ws))
-                    if dist2_to_light > rad2:
-                        draw_point({pos:p, color:#0, z:20})
-        */
 draw_ui()
         
 if DEBUG_BGM_OVERLAY:
