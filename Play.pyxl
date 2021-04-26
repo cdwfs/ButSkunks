@@ -383,7 +383,7 @@ def itor_stinkbomb_grow(stinkbomb):
             stinkbomb.source_skunk.charging_sound = nil
             // stop growing. See whether the bomb succeeded. If so, spawn an explosion of the appropriate
             // size. Either way, destroy the bomb.
-            const latency_f = round(AUDIO_LATENCY_FRAMES)
+            const latency_f = round(stinkbomb.source_skunk.player.audio_latency_frames)
             const target_f = BGM_FRAMES_PER_MEASURE/2 // target frame is halfway through the measure, at the snare hit
             const adjusted_release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - latency_f - target_f) % BGM_FRAMES_PER_MEASURE
             const half_fpm = BGM_FRAMES_PER_MEASURE/2
@@ -414,9 +414,9 @@ def itor_stinkbomb_grow(stinkbomb):
             debug_print("raw=" + bgm_measure_f + " adjusted=" + adjusted_release_measure_f + " delta=" + delta_f + (if bomb_explodes then " BOOM" else ""))
             // Help the player by adjusting the latency towards their actual input time.
             if abs(delta_f) < INPUT_AUDIO_FRAME_TOLERANCE*3:
-                const old_latency = AUDIO_LATENCY_FRAMES
-                AUDIO_LATENCY_FRAMES = (AUDIO_LATENCY_FRAMES + INPUT_LATENCY_CORRECTION_FACTOR * delta_f) % BGM_FRAMES_PER_MEASURE
-                debug_print("delta=" + delta_f + ": latency adjusted from " + old_latency + " to " + AUDIO_LATENCY_FRAMES)            
+                const old_latency = stinkbomb.source_skunk.player.audio_latency_frames
+                stinkbomb.source_skunk.player.audio_latency_frames = (stinkbomb.source_skunk.player.audio_latency_frames + INPUT_LATENCY_CORRECTION_FACTOR * delta_f) % BGM_FRAMES_PER_MEASURE
+                debug_print("delta=" + delta_f + ": latency adjusted from " + old_latency + " to " + stinkbomb.source_skunk.player.audio_latency_frames)            
             // Either way, despawn the stinkbomb and let the source skunk drop another one
             stinkbomb.source_skunk.active_stinkbombs -= 1
             entity_remove_child(stinkbomb.source_skunk, stinkbomb)
@@ -654,6 +654,7 @@ for info in player_infos:
             stunned_enemy_count:0, // how many times did this player stun an enemy?
             stunned_by_enemy_count:0, // how many times did this player get stunned by an enemy?
             },
+        audio_latency_frames: AUDIO_LATENCY_FRAMES,
         anims: {idle:info.idle_anim, walk:info.walk_anim},
         skunk: nil,
         })
@@ -780,9 +781,10 @@ if DEBUG_BOMB_TIMING:
         draw_text({text:format_number(delta_f, " 0"), font:font,
             pos:tp, x_align:"right", y_align:"top", color:tc})
         tp.y += font.line_height
-        draw_text({text:format_number(AUDIO_LATENCY_FRAMES, " 0"), font:font,
-            pos:tp, x_align:"right", y_align:"top", color:#f})
-        tp.y += font.line_height
+        for i < size(players):
+            draw_text({text:format_number(players[i].audio_latency_frames, " 0"), font:font,
+                pos:tp, x_align:"right", y_align:"top", color:PLAYER_COLORS[i]})
+            tp.y += font.line_height
         draw_text({text:format_number(INPUT_AUDIO_FRAME_TOLERANCE, " 0"), font:font,
             pos:tp, x_align:"right", y_align:"top", color:#f})
         tp.y += font.line_height

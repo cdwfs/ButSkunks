@@ -81,7 +81,8 @@ def bgm_draw_debug(z default 0) preserving_transform:
     draw_corner_rect({corner:tp + xy(0,2*BAR_HEIGHT), size:xy(MAX_BAR_WIDTH, BAR_HEIGHT), outline:#0ff, color:rgba(0,0,0,0), z:z})
     draw_corner_rect({corner:tp + xy(0,2*BAR_HEIGHT), size:xy(bgm_measure_t * MAX_BAR_WIDTH, BAR_HEIGHT), color:#0ff, z:z})
 
-// Latency measurement
+// Latency measurement. Every player has their own private copy of this value which
+// is adjusted during gameplay based on their actual timing.
 let AUDIO_LATENCY_FRAMES = 0
 def bgm_save_audio_latency_frames():
     save_local("AUDIO_LATENCY_FRAMES", AUDIO_LATENCY_FRAMES)
