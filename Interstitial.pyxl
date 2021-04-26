@@ -15,7 +15,7 @@ def fade_out_and_enter_game(frames_left, total_frames, data):
         scale:xy(1,1) + s*xy(8,8)
         })
     fade_frame_count = clamp(fade_frame_count-1, 0, MAX_FADE_FRAMES)
-    if ((bgm_measure mod 4) == 3) and (bgm_measure_f == BGM_FRAMES_PER_MEASURE-1):
+    if ((bgm_measure mod 4) == 0) and bgm_measure_ff:
         set_mode(Play, data.level_index) because "Started game"
 
 const LEVEL_NAMES = [
