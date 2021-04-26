@@ -28,13 +28,17 @@ let disable_input = false
 let prev_level_index = 0
 let next_level_index = 0
 let fade_frame_count = -1
+let prev_players = ∅
+let prev_elapsed_sec = 0
 
-enter(in_prev_level_index)
+enter(in_prev_level_index, in_players, in_elapsed_sec)
 ────────────────────────────────────────────────────────────────────────
 disable_input = false
 prev_level_index = 0
 next_level_index = 0
 fade_frame_count = -1
+prev_players = in_players
+prev_elapsed_sec = in_elapsed_sec
 
 prev_level_index = in_prev_level_index;
 if      prev_level_index == 0:
@@ -67,9 +71,46 @@ if not disable_input:
                 fade_frame_count = MAX_FADE_FRAMES
                 add_frame_hook(fade_out_and_enter_game, nil, infinity, get_mode(), {level_index:next_level_index})
 
-draw_text({font:font, text:"You cleared the " + LEVEL_NAMES[prev_level_index] + "!", pos:xy(50% SCREEN_SIZE.x, 25% SCREEN_SIZE.y),
-        text_size:max(0,mode_frames/3), x_align:"center", color:#f}).y
-    
+let tp = xy(10, 10)
+draw_text({text:"You cleared the " + LEVEL_NAMES[prev_level_index] + " in " + format_number(prev_elapsed_sec, "0.00") + " seconds!",
+    font:font, pos:tp, x_align:"left", color:#f})
+tp.y += font.line_height
+// Gather & display per-player stats
+let destroyed_counts = []
+let explode_rates = []
+let perfect_explode_counts = []
+let stunned_enemy_counts = []
+let stunned_by_enemy_counts = []
+for stats in player in prev_players:
+    push(destroyed_counts, format_number(stats.destroy_count, "   0"))
+    if stats.charge_count > 0:
+        push(explode_rates, format_number(stats.explode_count/stats.charge_count, "  0%"))
+    else:
+        push(explode_rates, format_number(0, "  0%"))
+    push(perfect_explode_counts, format_number(stats.perfect_explode_count, "   0"))
+    push(stunned_enemy_counts, format_number(stats.stunned_enemy_count, "   0"))
+    push(stunned_by_enemy_counts, format_number(stats.stunned_by_enemy_count, "   0"))
+let columns = [32, 64]
+tp = xy(128,64)
+for i < size(prev_players):
+    draw_sprite({pos:tp+xy(columns[i],0), sprite:prev_players[i].anims.walk.frame(mode_frames), angle:90°})
+tp.y += 20
+draw_text({text:"Destroyed objects:", font:font, pos:tp, x_align:"right", color:#f})
+for i < size(prev_players):
+    draw_text({text:destroyed_counts[i], font:font, pos:tp + xy(columns[i],0),
+        color:PLAYER_COLORS[i], x_align:"center"})
+tp.y += font.line_height
+draw_text({text:"Explode rate:", font:font, pos:tp, x_align:"right", color:#f})
+for i < size(prev_players):
+    draw_text({text:explode_rates[i], font:font, pos:tp + xy(columns[i],0),
+        color:PLAYER_COLORS[i], x_align:"center"})
+tp.y += font.line_height
+draw_text({text:"Perfect explosions:", font:font, pos:tp, x_align:"right", color:#f})
+for i < size(prev_players):
+    draw_text({text:perfect_explode_counts[i], font:font, pos:tp + xy(columns[i],0),
+        color:PLAYER_COLORS[i], x_align:"center"})
+tp.y += font.line_height
+
 draw_text({font:font, pos:xy(50% SCREEN_SIZE.x, 90% SCREEN_SIZE.y),
     text:replace("(b) Return To Menu    (a) Continue", gamepad_array[0].prompt), color:#f, x_align:"center"})
 

@@ -30,9 +30,9 @@ const ANGLE_FOR_DIR = [-π/2, π, 0, π/2]
 const NAME_FOR_DIR = ["S","W","E","N"]
 
 def enter_interstitial_mode(data):
-    set_mode(Interstitial, level_index) because "Completed level"
+    set_mode(Interstitial, level_index, players, bgm_now) because "Completed level"
 def enter_gameover_mode(data):
-    set_mode(GameOver) because "Failed to complete level"
+    set_mode(GameOver, players) because "Failed to complete level"
 
 const MAX_LEVEL_SECONDS = 90
 
@@ -201,6 +201,7 @@ def itor_active_skunk_apply_stun(skunk):
     const icell = map_pos_to_cell(skunk.pos)
     if enemy_grid[icell.x][icell.y]:
         play_sound(SND_STUN_PLAYER)
+        skunk.player.stats.stunned_by_enemy_count += 1
         skunk.stun_angle = 720°
     
 // Update stun angle. stun_angle=0 -> unstunned. Otherwise, you spin in place.
@@ -271,6 +272,7 @@ def itor_active_skunk_place_stinkbomb(skunk):
             return
         if gamepad.a:
             active_stinkbombs += 1
+            skunk.player.stats.charge_count += 1
             const stinkbomb = make_entity({
                 pos_in_parent: xy(0, BLOCK_SIZE.y),
                 scale: xy(0,0),
@@ -304,7 +306,9 @@ def itor_enemy_apply_stun(enemy):
     if enemy.stun_angle > 0°:
         return
     const icell = map_pos_to_cell(enemy.pos)
-    if explosion_grid[icell.x][icell.y]:
+    const explosion = explosion_grid[icell.x][icell.y]
+    if explosion ≠ ∅:
+        explosion.source_skunk.player.stats.stunned_enemy_count += 1
         play_sound(SND_STUN_ENEMY)
         enemy.stun_angle = 720°
     
@@ -390,11 +394,15 @@ def itor_stinkbomb_grow(stinkbomb):
                 // bomb succeeds! spawn an explosion entity
                 play_sound({time:random(0,0.05), pitch:random(0.9, 1.1), ...SND_STINKBOMB_EXPLODE})
                 bomb_explodes = true
+                stinkbomb.source_skunk.player.stats.explode_count += 1
+                if delta_f == 0:
+                    stinkbomb.source_skunk.player.stats.perfect_explode_count += 1
                 const explosion = make_entity({
                     pos: stinkbomb.pos,
                     sprite: stinkbomb_sprite.stink.frame(0),
                     start_frame: mode_frames,
                     duration_frames: stinkbomb_sprite.stink.frames,
+                    source_skunk:stinkbomb.source_skunk,
                     start_scale:scale,
                     end_scale:0.75*scale,
                     scale:scale,
@@ -462,7 +470,9 @@ def itor_box_flash(box):
 // RW: boxes, box_grid
 def itor_box_break(box):
     const icell = map_pos_to_cell(box.pos)
-    if explosion_grid[icell.x][icell.y] ≠ nil:
+    const explosion = explosion_grid[icell.x][icell.y]
+    if explosion ≠ nil:
+        explosion.source_skunk.player.stats.destroy_count += 1
         play_sound({time:random(0,0.05), pitch:random(0.9, 1.1), ...SND_DESTROY})
         box_grid[icell.x][icell.y] = ∅ // broken objects are immediately walkable
         // "broken" version of each destroyable object is one tile to the right in the same sheet, by convention.
@@ -636,6 +646,14 @@ for info in player_infos:
     push(players, {
         spawn_icell: player_start_icells[player_index],
         gamepad: info.gamepad,
+        stats: {
+            destroy_count:0, // how many objects destroyed by this player's stinkbombs
+            charge_count:0, // how many times did this player start charging a stinkbomb
+            explode_count:0, // how many of this player's stinkbombs successfully exploded
+            perfect_explode_count:0, // how many times did this player explode a stinkbomb on the perfect frame?
+            stunned_enemy_count:0, // how many times did this player stun an enemy?
+            stunned_by_enemy_count:0, // how many times did this player get stunned by an enemy?
+            },
         anims: {idle:info.idle_anim, walk:info.walk_anim},
         skunk: nil,
         })
