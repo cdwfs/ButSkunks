@@ -80,10 +80,10 @@ if not disable_input:
 // Draw splash screen
 const title_pos = xy(50% SCREEN_SIZE.x, 25% SCREEN_SIZE.y)
 draw_text({font:font, x_align:"center", pos:title_pos,
-    color:#ff0, text:"Toxic Skunks"})
+    color:#ff0, text:"But...Skunks?"})
 const title_offsets = [xy(1,0),xy(1,1),xy(0,1),xy(-1,1),xy(-1,0),xy(-1,-1),xy(0,-1),xy(1,-1)]
 draw_text({font:font, x_align:"center", pos:title_pos + array_value(title_offsets, mode_frames/3, "loop"),
-    color:#840, text:"Toxic Skunks", z:-1})
+    color:#840, text:"But...Skunks?", z:-1})
 
 let menu_offset = xy(45% SCREEN_SIZE.x, 50% SCREEN_SIZE.y)
 for menu_item at i in MENU_ITEMS:
