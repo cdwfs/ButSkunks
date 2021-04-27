@@ -69,6 +69,8 @@ intro_timeline = [
     {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:"You thought it was nothing.{br}Until they seized your neighborhood.{br}It's time to take it back.", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     {cmd:CMD_IMAGE, image:cutscene2_sprite},
+    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:replace("Move your skunk with [^],[<],[v],[>]",joy.prompt), speed:1},
+    {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     {cmd:CMD_TUTORIAL},
     {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:"Break all their stuff to advance.{br}If time runs out, you lose.{br}Now go forth and stink!", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
