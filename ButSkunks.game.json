@@ -2,7 +2,7 @@
     "title": "But... Skunks!?",
     "developer": "Bitterly Indifferent Studios",
     "copyright": "©2021 Bitterly Indifferent Studios",
-    "license": "All Rights Reserved. Redistribution prohibited.",
+    "license": "Licensed as CC BY-SA 4.0 https://creativecommons.org/licenses/by-sa/4.0/",
     "packages": [],
     "scripts": [
         "globals.pyxl",
@@ -55,6 +55,42 @@
     "achievements": false,
     "highscores": false,
     "description": "Skunks. Why did it have to be skunks?",
+    "credits": {
+        "main": [
+            "Art:",
+            "Donald Conrad",
+            "Design:",
+            "Peter Gross",
+            "Code:",
+            "Cort Stratton",
+            "Music:",
+            "@inkedsplat",
+            "Additional Sound:",
+            "Cort Stratton",
+            "",
+            "\"Actual Warface\"",
+            "Quadplay Support:",
+            "Morgan McGuire",
+            "",
+            "Stephan Steinbach",
+            "",
+            "Nick Porcino",
+            "Special Thanks:",
+            "Lesley Mathieson",
+            "",
+            "Ben Burnes"
+        ],
+        "extra": ""
+    },
+    "links": {
+        "game": {
+            "www": "https://bitterlyindifferent.itch.io/but-skunks",
+            "github": "https://github.com/cdwfs/ToxicSkunks"
+        },
+        "developer": {
+            "www": "https://bitterlyindifferent.itch.io/"
+        }
+    },
     "constants": {
         "INPUT_AUDIO_FRAME_TOLERANCE": {
             "type": "number",
