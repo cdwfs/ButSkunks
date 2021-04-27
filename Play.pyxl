@@ -520,7 +520,7 @@ def itor_breaking_box_fade(bbox):
         return iterate.REMOVE
 
 // UI
-def draw_ui():
+def draw_remaining_time():
     // Draw countdown timer
     const elapsed_sec = clamp(bgm_now, 0, MAX_LEVEL_SECONDS)
     const remain_sec = MAX_LEVEL_SECONDS - elapsed_sec
@@ -528,33 +528,6 @@ def draw_ui():
     const z = 2038 // UI should be very very on top
     draw_text({font:font, text:format_number(remain_sec, "  0.00"),
         pos:xy(4,0), y_align:"top", x_align:"left", color:c, scale:1.5, z:z})
-    // Draw visual aid for explosion timing
-    const line_len = 4*BGM_FRAMES_PER_MEASURE
-    const line_dx = 48
-    const line_end   = xy(4+48, 6)
-    const line_start = line_end + xy(line_len, 0)
-    const dot_scale_start = xy(3,3)
-    const dot_scale_end = xy(9,9)
-    const dot_scale_end2 = xy(11,11)
-    const angle_start = 0
-    const angle_end = 180°
-    // main timeline
-    draw_line({A:line_start, B:line_end, color:#f, z:z})
-    // vertical tick at halfway point
-    draw_rect({pos:lerp(line_start, line_end, 0.5), color:#f, size:xy(1,7), z:z+1})
-    // dot before the halfway point
-    const offset_measure_t = (bgm_measure_t + 0.5) % 1.0
-    draw_rect({pos:lerp(line_start, line_end, 0.5*offset_measure_t), color:#0f0,
-        size:dot_scale_start, angle:lerp(angle_start, angle_end, offset_measure_t), z:z+1})
-    // dot after the halfway point, scaling up as it reaches the end
-    draw_rect({pos:lerp(line_start, line_end, 0.5+0.5*offset_measure_t), color:#0f0,
-        size:lerp(dot_scale_start, dot_scale_end, offset_measure_t),
-        angle:lerp(angle_start, angle_end, offset_measure_t), z:z+1})
-    // fading large dot at the end of the timeline
-    const col = lerp(#ffff, #0f00, offset_measure_t)
-    //const a = (1-offset_measure_t)*(1-offset_measure_t)
-    draw_rect({pos:line_end, color:col, size:lerp(dot_scale_end, dot_scale_end2, offset_measure_t),
-        angle:lerp(angle_start, angle_end, offset_measure_t), z:z+2})
 
 // GLOBALS
 // The *_grid arrays are 2D arrays. Unless otherwise mentioned, grid[x][y]
@@ -769,7 +742,8 @@ preserving_transform:
             set_clip({pos:corner_ss, size:box_size})
             draw_game()
             reset_clip()
-draw_ui()
+draw_remaining_time()
+draw_timing_aid(xy(52,6))
         
 if DEBUG_BGM_OVERLAY:
     bgm_draw_debug()
