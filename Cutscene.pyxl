@@ -7,8 +7,9 @@ const CMD_FADE_OUT = 3
 const CMD_FADE_IN = 4
 const CMD_SOUND = 5
 const CMD_WAIT_FOR_INPUT = 6
-const CMD_TUTORIAL = 7
-const CMD_SET_MODE = 8
+const CMD_MOVE_TUTORIAL = 7
+const CMD_BLAST_TUTORIAL = 8
+const CMD_SET_MODE = 9
 
 const MAX_FADE_FRAMES = 6*BGM_FRAMES_PER_MEASURE
 // Need a special fade-out function here, since we don't know exactly how many frames
@@ -69,9 +70,9 @@ intro_timeline = [
     {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:"You thought it was nothing.{br}Until they seized your neighborhood.{br}It's time to take it back.", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     {cmd:CMD_IMAGE, image:cutscene2_sprite},
-    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:replace("Move your skunk with [^],[<],[v],[>]",joy.prompt), speed:1},
+    {cmd:CMD_MOVE_TUTORIAL},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
-    {cmd:CMD_TUTORIAL},
+    {cmd:CMD_BLAST_TUTORIAL},
     {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:"Break all their stuff to advance.{br}If time runs out, you lose.{br}Now go forth and stink!", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     //{cmd:CMD_FADE_OUT, color:#f00, duration:60},
@@ -142,7 +143,25 @@ else if next_cmd.cmd == CMD_WAIT_FOR_INPUT:
             x_align:"right", y_align:"bottom", color:#f, shadow:#0, z:10})
     if any_button_press():
         advance = true
-else if next_cmd.cmd == CMD_TUTORIAL:
+else if next_cmd.cmd == CMD_MOVE_TUTORIAL:
+    let text = replace("Move your skunk around the maze.{br}Player 1: {color:#f5a [^],[<],[v],[>]}{br}",
+        player_infos[0].gamepad.prompt)
+    if size(player_infos) == 2:
+        text += replace("Player 2: {color:#0af [^],[<],[v],[>]}{br}", player_infos[1].gamepad.prompt)
+    const text_len = size(text)
+    if mode_frames == cmd_start_frame:
+        text_args.text = text
+        text_args.pos = xy(75,160)
+        text_args.color = #f
+        text_args.wrap_width = 250
+        text_args.text_size = 0
+    else:
+        text_args.text_size += 1
+    if any_button_press():
+        text_args.text_size = text_len
+    if text_args.text_size ≥ text_len:
+        advance = true
+else if next_cmd.cmd == CMD_BLAST_TUTORIAL:
     if mode_frames == cmd_start_frame:
         set_volume(bgm_loops[2], 100%) // fade in claps track
         let button_text = replace("{color:#f5a (a)}", player_infos[0].gamepad.prompt)
