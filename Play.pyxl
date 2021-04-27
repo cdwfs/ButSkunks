@@ -14,7 +14,7 @@ const LEVEL_INFOS = [
     {map: basement_map, floor_sprite:map_tiles_sprite.basement_floor, limit_visibility:true},
 ]
 
-const SND_STINKBOMB_CHARGE = {sound:charge_sound, volume: 70%}
+const SND_STINKBOMB_CHARGE = {sound:charge_sound, playback_rate:200%, volume: 70%}
 const SND_STINKBOMB_EXPLODE = {sound:explode_sound, volume: 80%}
 const SND_DESTROY = {sound:destroy_sound, volume: 90%}
 const SND_STUN_PLAYER = {sound:stun_player_sound, volume: 60%}

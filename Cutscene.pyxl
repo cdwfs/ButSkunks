@@ -70,7 +70,7 @@ intro_timeline = [
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     {cmd:CMD_IMAGE, image:cutscene2_sprite},
     {cmd:CMD_TUTORIAL},
-    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:"Break all their stuff to advance.{br}Now go forth and stink!", speed:1},
+    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:"Break all their stuff to advance.{br}If time runs out, you lose.{br}Now go forth and stink!", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     //{cmd:CMD_FADE_OUT, color:#f00, duration:60},
     {cmd:CMD_SET_MODE, mode:1},    
