@@ -577,6 +577,7 @@ if size(player_infos) == 0:
     debug_print("Debug mode!")
     player_infos = [{
         gamepad: gamepad_array[0], // includes player index in gamepad.index
+        latency_offset: 0,
         idle_anim: skunk_sprite.p1_idle,
         walk_anim: skunk_sprite.p1_walk,
     }]
@@ -649,7 +650,7 @@ for info in player_infos:
             stunned_enemy_count:0, // how many times did this player stun an enemy?
             stunned_by_enemy_count:0, // how many times did this player get stunned by an enemy?
             },
-        audio_latency_frames: AUDIO_LATENCY_FRAMES,
+        audio_latency_frames: AUDIO_LATENCY_FRAMES + info.latency_offset,
         anims: {idle:info.idle_anim, walk:info.walk_anim},
         skunk: nil,
         })
