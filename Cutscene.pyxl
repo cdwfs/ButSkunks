@@ -70,7 +70,7 @@ intro_timeline = [
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     {cmd:CMD_IMAGE, image:cutscene2_sprite},
     {cmd:CMD_TUTORIAL},
-    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:"Now go forth and stink!", speed:1},
+    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:250, text:"Break all their stuff to advance.{br}Now go forth and stink!", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     //{cmd:CMD_FADE_OUT, color:#f00, duration:60},
     {cmd:CMD_SET_MODE, mode:1},    
@@ -146,7 +146,7 @@ else if next_cmd.cmd == CMD_TUTORIAL:
         let button_text = replace("{color:#f5a (a)}", player_infos[0].gamepad.prompt)
         if size(player_infos) == 2:
             button_text += replace("/{color:#0af (a)}", player_infos[1].gamepad.prompt)
-        text_args.text = "Hold "+button_text+" to charge. Release on the beat to blast. Break ALL their stuff"
+        text_args.text = "Hold "+button_text+" to charge. Release on the beat to blast. Blasts break stuff. Try it!"
         text_args.pos = xy(75,160)
         text_args.color = #f
         text_args.wrap_width = 250
@@ -164,6 +164,7 @@ else if next_cmd.cmd == CMD_TUTORIAL:
                 z:2040,
                 player_info:player_infos[i],
                 player_color:PLAYER_COLORS[i],
+                has_charged:false, // flips to true the first time this player starts a charge
                 charging:false,
                 successful_blasts:0,
                 box:box,
@@ -180,8 +181,11 @@ else if next_cmd.cmd == CMD_TUTORIAL:
         let skunk = skunks[i]
         skunk.sprite = player_infos[i].walk_anim.frame(bgm_now_f)
         draw_entity(skunk)
-        // draw stinkbomb
-        if not skunk.charging and pad.a:
+        // Hack to ignore lingering A presses when you first enter the mode.
+        if pad.aa:
+            skunk.has_charged = true
+        // spawn stinkbombs
+        if not skunk.charging and skunk.has_charged and pad.a:
             skunk.charging = true
             const stinkbomb = make_entity({
                 pos: skunk.pos+xy(0,8),
@@ -287,6 +291,9 @@ else if next_cmd.cmd == CMD_TUTORIAL:
         box.override_color = rgba(#ad4,fade_t)
     iterate(boxes, itor_box_flash)
     iterate(boxes, draw_entity)
+    // Print instructions to continue
+    draw_text({font:font, pos:xy(SCREEN_SIZE.x/2, SCREEN_SIZE.y), text:"Complete 3 blasts",
+        x_align:"center", y_align:"bottom", color:#f, shadow:#0, z:10})
     
     // If all players have finished the tutorial, advance
     let all_players_ready = true
