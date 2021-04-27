@@ -148,7 +148,7 @@ else if next_cmd.cmd == CMD_SET_MODE:
 // draw stuff
 set_post_effects(post_effects)
 if image ≠ ∅:
-    draw_sprite({sprite:image.scene.frame(mode_frames), pos:50% SCREEN_SIZE})
+    draw_sprite({sprite:image.scene.frame(bgm_now_f), pos:50% SCREEN_SIZE})
 draw_text(text_args)
 draw_text({font:font, pos:SCREEN_SIZE-xy(8,0), text:replace("(b) Skip", joy.prompt),
     x_align:"right", y_align:"bottom", color:#f, shadow:#0, z:10})

@@ -1,5 +1,9 @@
 {
     "url": "cutscene1.png",
+    "sprite_size": {
+        "x": 384,
+        "y": 224
+    },
     "names": {
         "scene": {
             "start": {
@@ -12,7 +16,7 @@
             },
             "extrapolate": "loop",
             "frames": [
-                4,
+                14
             ]
         }
     },
