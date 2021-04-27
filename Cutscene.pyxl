@@ -41,7 +41,7 @@ advance = false
 next_cmd_index = 0
 cmd_start_frame = 0
 image = ∅
-text_args = {font:font, text:"", color:#f, pos:xy(0,0), wrap_width:0, text_size:0, z:1, shadow:#0}
+text_args = {font:font, text:"", color:#f, pos:xy(0,0), wrap_width:0, text_size:0, markup:true, z:1, shadow:#0}
 post_effects = {}
 intro_timeline = []
 level_index = in_level_index
@@ -51,15 +51,21 @@ ready_to_enter_game = false
 reset_post_effects()
 post_effects = get_post_effects()
 
+let button_text = replace("{color:#f5a (a)}", player_infos[0].gamepad.prompt)
+if size(player_infos) == 2:
+    button_text += replace("/{color:#0af (a)}", player_infos[1].gamepad.prompt)
 // TODO: select timeline based on level_index
+debug_watch(button_text)
 intro_timeline = [
     {cmd:CMD_FADE_OUT, color:#0, duration:0},
     {cmd:CMD_IMAGE, image:cutscene1_sprite},
     {cmd:CMD_FADE_IN, color:#0, duration:60},
-    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:300, text:"You thought it was nothing.\nUntil they seized your neighborhood.\nIt's time to take it back.", speed:1},
+    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:300, text:"You thought it was nothing.{br}Until they seized your neighborhood.{br}It's time to take it back.", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     {cmd:CMD_IMAGE, image:cutscene2_sprite},
-    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:300, text:replace("Hold (a) to charge.\nLet go on the beat to blast.\nBreak their stuff to clear the stage.", joy.prompt), speed:1},
+    {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:300,
+        text:"Hold "+button_text+" to charge.{br}Let go on the beat to blast.{br}Break their stuff to clear the stage.",
+        speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     //{cmd:CMD_FADE_OUT, color:#f00, duration:60},
     {cmd:CMD_SET_MODE, mode:1},    
