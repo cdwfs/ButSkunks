@@ -15,7 +15,7 @@ const MAX_FADE_FRAMES = 6*BGM_FRAMES_PER_MEASURE
 def fade_out_and_enter_game(frames_left, total_frames, data):
     let t = fade_frame_count / MAX_FADE_FRAMES
     let s = smoothstep(1,0,t)
-    post_effects.scale = xy(1,1) + s*xy(8,8)
+    post_effects.scale = xy(1,1) + s*xy(6,6)
     fade_frame_count = clamp(fade_frame_count-1, 0, MAX_FADE_FRAMES)
     // Change music to transition measure at the beginning of the measure
     if (bgm_measure mod 4) ≤ 2 and not ready_to_enter_game:
@@ -41,7 +41,7 @@ advance = false
 next_cmd_index = 0
 cmd_start_frame = 0
 image = ∅
-text_args = {font:font, text:"", color:#f, pos:xy(0,0), wrap_width:0, text_size:0, z:1}
+text_args = {font:font, text:"", color:#f, pos:xy(0,0), wrap_width:0, text_size:0, z:1, shadow:#0}
 post_effects = {}
 intro_timeline = []
 level_index = in_level_index
@@ -54,16 +54,16 @@ post_effects = get_post_effects()
 // TODO: select timeline based on level_index
 intro_timeline = [
     {cmd:CMD_FADE_OUT, color:#0, duration:0},
-    {cmd:CMD_IMAGE, image:cutscene1_sprite[0][0]},
+    {cmd:CMD_IMAGE, image:cutscene1_sprite},
     {cmd:CMD_FADE_IN, color:#0, duration:60},
     {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:300, text:"You thought it was nothing.\nUntil they siezed your neighborhood.\nIt's time to take it back.", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
     {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:300, text:"Hold the action key to charge.\nLet go on the beat to blast.\nBreak their stuff to clear the stage.", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
-    {cmd:CMD_IMAGE, image:cutscene2_sprite[0][0]},
+    {cmd:CMD_IMAGE, image:cutscene2_sprite},
     {cmd:CMD_TEXT, pos:xy(75,160), color:#f, wrap_width:150, text:"An ocean voyage.\nAs waves break over the bow,\nthe sea welcomes me.", speed:1},
     {cmd:CMD_WAIT_FOR_INPUT, pos:xy(0.5,1.0)*SCREEN_SIZE},
-    {cmd:CMD_FADE_OUT, color:#f00, duration:60},
+    //{cmd:CMD_FADE_OUT, color:#f00, duration:60},
     {cmd:CMD_SET_MODE, mode:1},    
     ]
 
@@ -144,8 +144,11 @@ else if next_cmd.cmd == CMD_SET_MODE:
 // draw stuff
 set_post_effects(post_effects)
 if image ≠ ∅:
-    draw_sprite({sprite:image, pos:50% SCREEN_SIZE})
+    draw_sprite({sprite:image.scene.frame(mode_frames), pos:50% SCREEN_SIZE})
 draw_text(text_args)
+draw_text({font:font, pos:SCREEN_SIZE-xy(8,0), text:replace("(b) Skip", joy.prompt),
+    x_align:"right", y_align:"bottom", color:#f, shadow:#0, z:10})
+
     
 leave
 ────────────────────────────────────────────────────────────────────────
