@@ -91,18 +91,6 @@
         }
     },
     "constants": {
-        "INPUT_AUDIO_FRAME_TOLERANCE": {
-            "type": "number",
-            "value": "3",
-            "description": "How many frames off can a button press be from the target frame and still be counted?",
-            "min": 0,
-            "max": {
-                "type": "number",
-                "value": "8"
-            },
-            "format": "",
-            "quantum": 1
-        },
         "DEBUG_BGM_OVERLAY": {
             "type": "boolean",
             "value": false,
@@ -133,11 +121,6 @@
             "type": "boolean",
             "value": false,
             "description": "Force the \"limit_visiblity\" effect in all levels"
-        },
-        "DEBUG_CHEATS": {
-            "type": "boolean",
-            "value": true,
-            "description": "If enabled, various unused gamepad buttons are used to trigger cheats at runtime"
         }
     },
     "screenshot_tag": "Starter Example"

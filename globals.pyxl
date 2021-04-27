@@ -18,6 +18,35 @@ def fade_out(frames_left, total_frames, data):
 // - latency_offset
 let player_infos = []
 
+// Global prefernces
+// Latency measurement. Every player has their own private copy of this value which
+// is adjusted during gameplay based on their actual timing.
+let AUDIO_LATENCY_FRAMES = 0
+let INPUT_AUDIO_FRAME_TOLERANCE = 3
+let DEBUG_CHEATS = false
+def save_user_preferences():
+    save_local("AUDIO_LATENCY_FRAMES", AUDIO_LATENCY_FRAMES)
+    save_local("INPUT_AUDIO_FRAME_TOLERANCE", INPUT_AUDIO_FRAME_TOLERANCE)
+    save_local("DEBUG_CHEATS", DEBUG_CHEATS)
+    debug_print("saved user preferences:")
+    debug_print("- AUDIO_LATENCY_FRAMES: " + AUDIO_LATENCY_FRAMES)
+    debug_print("- INPUT_AUDIO_FRAME_TOLERANCE: " + INPUT_AUDIO_FRAME_TOLERANCE)
+    debug_print("- DEBUG_CHEATS: " + DEBUG_CHEATS)
+def load_user_preferences():
+    AUDIO_LATENCY_FRAMES = load_local("AUDIO_LATENCY_FRAMES")
+    if AUDIO_LATENCY_FRAMES == ∅:
+        AUDIO_LATENCY_FRAMES = 0
+    INPUT_AUDIO_FRAME_TOLERANCE = load_local("INPUT_AUDIO_FRAME_TOLERANCE")
+    if INPUT_AUDIO_FRAME_TOLERANCE == ∅:
+        INPUT_AUDIO_FRAME_TOLERANCE = 3
+    DEBUG_CHEATS = load_local("DEBUG_CHEATS")
+    if DEBUG_CHEATS == ∅:
+        DEBUG_CHEATS = false
+    debug_print("loaded user preferences:")
+    debug_print("- AUDIO_LATENCY_FRAMES: " + AUDIO_LATENCY_FRAMES)
+    debug_print("- INPUT_AUDIO_FRAME_TOLERANCE: " + INPUT_AUDIO_FRAME_TOLERANCE)
+    debug_print("- DEBUG_CHEATS: " + DEBUG_CHEATS)
+
 // Draw the timing aid bar
 def draw_timing_aid(pos, len default 4*BGM_FRAMES_PER_MEASURE, z default 2038):
     // Draw visual aid for explosion timing
