@@ -452,7 +452,9 @@ def itor_explosion_populate_grid(explosion):
     else:
         for dy in [-1,0,1]:
             for dx in [-1,0,1]:
-                explosion_grid[icell.x+dx][icell.y+dy] = explosion
+                const x = clamp(icell.x+dx, 0, map.size.x-1)
+                const y = clamp(icell.y+dy, 0, map.size.y-1)
+                explosion_grid[x][y] = explosion
 
 // Destroy explosions after a while
 // target: explosions
