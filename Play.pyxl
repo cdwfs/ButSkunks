@@ -660,8 +660,6 @@ for player in players:
     push(active_skunks, skunk)
     player.skunk = skunk
 
-// Spawn enemies
-
 if bgm_is_playing():
     bgm_stop()
 let loops = [

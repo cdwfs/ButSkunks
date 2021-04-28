@@ -1,6 +1,8 @@
 Interstitial
 ════════════════════════════════════════════════════════════════════════
 def enter_menu_mode(data):
+    if bgm_is_playing():
+        bgm_stop()
     set_mode(Menu) because "Return to main menu"
 
 const MAX_FADE_FRAMES = 6*BGM_FRAMES_PER_MEASURE
