@@ -44,7 +44,8 @@
         "stun_enemy_sound": "stun_enemy.sound.json",
         "stun_player_sound": "stun_player.sound.json",
         "title_sprite": "title.sprite.json",
-        "credits_sprite": "credits.sprite.json"
+        "credits_sprite": "credits.sprite.json",
+        "lighting_map": "lighting.map.json"
     },
     "version": 0,
     "min_players": 1,

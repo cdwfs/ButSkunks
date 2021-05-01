@@ -715,8 +715,26 @@ if bgm_now ≥ MAX_LEVEL_SECONDS or (DEBUG_CHEATS and joy.ff):
 let limit_visibility = DEBUG_FORCE_LIMIT_VISIBILITY or LEVEL_INFOS[level_index].limit_visibility
 if DEBUG_CHEATS and joy.q:
     limit_visibility = not limit_visibility
-def draw_game():
+// lighting
+let final_light_map = deep_clone(lighting_map)
+const light_sprites = final_light_map.spritesheet[0]
+let skunk_icells = []
+for mx < final_light_map.size.x:
+    for my < final_light_map.size.y:
+        const mc = xy(mx,my)
+        const mp = xy(8,8)*mc
+        let d2_min = ∞
+        for skunk in active_skunks:
+            debug_watch(skunk.pos)
+            const t = map_cell_to_pos(xy(1,1))
+            debug_watch(t)
+            d2_min = min(d2_min, magnitude_squared(skunk.pos - mp))
+        let darkness = smoothstep(0, 2304, d2_min)
+        set_map_sprite(final_light_map, mc, light_sprites[round(15*darkness)])
+preserving_transform:
+    set_transform(map_xform)
     draw_map({map:map})
+    draw_map({map:final_light_map, z:400})
     // Offset by ½ a grid square so that we can use integer coordinates for the centers of grid tiles
     compose_transform(0.5 BLOCK_SIZE)
     iterate(active_skunks, draw_entity)
@@ -725,9 +743,7 @@ def draw_game():
     iterate(boxes, draw_entity)
     iterate(breaking_boxes, draw_entity)
     iterate(enemies, draw_entity)
-    compose_transform(-0.5 BLOCK_SIZE)
-preserving_transform:
-    set_transform(map_xform)
+    /*
     if not limit_visibility:
         draw_game()
     else:
@@ -743,6 +759,7 @@ preserving_transform:
             set_clip({pos:corner_ss, size:box_size})
             draw_game()
             reset_clip()
+    */
 draw_remaining_time()
 draw_timing_aid(xy(52,6))
         
