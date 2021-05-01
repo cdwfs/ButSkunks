@@ -119,11 +119,6 @@
         "DEBUG_USE_TEST_MAP": {
             "type": "boolean",
             "value": false
-        },
-        "DEBUG_FORCE_LIMIT_VISIBILITY": {
-            "type": "boolean",
-            "value": false,
-            "description": "Force the \"limit_visiblity\" effect in all levels"
         }
     },
     "screenshot_tag": "Starter Example"

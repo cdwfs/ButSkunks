@@ -711,30 +711,35 @@ if size(boxes) == 0 or (DEBUG_CHEATS and joy.ee):
 if bgm_now ≥ MAX_LEVEL_SECONDS or (DEBUG_CHEATS and joy.ff):
     add_frame_hook(fade_out, enter_gameover_mode, 30, ∅, {})
     
-// DRAW
-let limit_visibility = DEBUG_FORCE_LIMIT_VISIBILITY or LEVEL_INFOS[level_index].limit_visibility
+// lighting
+let limit_visibility = LEVEL_INFOS[level_index].limit_visibility
 if DEBUG_CHEATS and joy.q:
     limit_visibility = not limit_visibility
-// lighting
-let final_light_map = deep_clone(lighting_map)
-const light_sprites = final_light_map.spritesheet[0]
-let skunk_icells = []
-for mx < final_light_map.size.x:
-    for my < final_light_map.size.y:
-        const mc = xy(mx,my)
-        const mp = xy(8,8)*mc
-        let d2_min = ∞
-        for skunk in active_skunks:
-            debug_watch(skunk.pos)
-            const t = map_cell_to_pos(xy(1,1))
-            debug_watch(t)
-            d2_min = min(d2_min, magnitude_squared(skunk.pos - mp))
-        let darkness = smoothstep(0, 2304, d2_min)
-        set_map_sprite(final_light_map, mc, light_sprites[round(15*darkness)])
+let final_light_map = ∅
+if limit_visibility:
+    let d2_to_lights = make_array2d(lighting_map.size.x, lighting_map.size.y, ∞)
+    const LIGHT_RADIUS_CELLS = 8 // in half-width cells
+    final_light_map = deep_clone(lighting_map)
+    const light_sprites = final_light_map.spritesheet[0]
+    for skunk in active_skunks:
+        let sc = map_pos_to_cell(2*skunk.pos) // offset to half-size cells
+        let minx = max(0,sc.x-LIGHT_RADIUS_CELLS)
+        let miny = max(0,sc.y-LIGHT_RADIUS_CELLS)
+        let maxx = min(lighting_map.size.x-1, sc.x+LIGHT_RADIUS_CELLS)
+        let maxy = min(lighting_map.size.y-1, sc.y+LIGHT_RADIUS_CELLS)
+        for minx ≤ mx ≤ maxx:
+            for miny ≤ my ≤ maxy:
+                const mc = xy(mx,my)
+                const mp = xy(8,8)*mc
+                d2_to_lights[mx][my] = min(d2_to_lights[mx][my], magnitude_squared(skunk.pos - mp))
+                let darkness = smoothstep(0, (3*16)*(3*16), d2_to_lights[mx][my])
+                set_map_sprite(final_light_map, mc, light_sprites[round(15*darkness)])
+// DRAW
 preserving_transform:
     set_transform(map_xform)
     draw_map({map:map})
-    draw_map({map:final_light_map, z:400})
+    if limit_visibility:
+        draw_map({map:final_light_map, z:400})
     // Offset by ½ a grid square so that we can use integer coordinates for the centers of grid tiles
     compose_transform(0.5 BLOCK_SIZE)
     iterate(active_skunks, draw_entity)
@@ -743,23 +748,6 @@ preserving_transform:
     iterate(boxes, draw_entity)
     iterate(breaking_boxes, draw_entity)
     iterate(enemies, draw_entity)
-    /*
-    if not limit_visibility:
-        draw_game()
-    else:
-        // For each player, render the game in a small clip window around their skunk
-        let box_centers_ws = []
-        let box_corners_ws = []
-        const box_size = 6*BLOCK_SIZE
-        for player in players:
-            const center_ss = transform_ws_to_ss(player.skunk.pos) + 0.5*BLOCK_SIZE
-            const corner_ss = center_ss - 3*BLOCK_SIZE
-            push(box_centers_ws, transform_ss_to_ws(center_ss))
-            push(box_corners_ws, transform_ss_to_ws(corner_ss))
-            set_clip({pos:corner_ss, size:box_size})
-            draw_game()
-            reset_clip()
-    */
 draw_remaining_time()
 draw_timing_aid(xy(52,6))
         
