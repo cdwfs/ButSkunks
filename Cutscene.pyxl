@@ -138,7 +138,7 @@ else if next_cmd.cmd == CMD_TEXT:
     if text_args.text_size ≥ text_len:
         advance = true
 else if next_cmd.cmd == CMD_WAIT_FOR_INPUT:
-    if (floor((mode_frames-cmd_start_frame) / 30) % 2) == 0:
+    if (floor((mode_frames-cmd_start_frame) / 30) mod 2) == 0:
         draw_text({font:font, pos:next_cmd.pos, text:replace("Press (a)", joy.prompt),
             x_align:"right", y_align:"bottom", color:#f, shadow:#0, z:10})
     if any_button_press():
@@ -195,7 +195,7 @@ else if next_cmd.cmd == CMD_BLAST_TUTORIAL:
     // draw button text moving along with the indicator
     for i < size(player_infos):
         let pad = player_infos[i].gamepad
-        draw_text({pos:lerp(xy(201,194+10*i), xy(121,194+10*i), (bgm_measure_t+0.5)%1.0), font:font,
+        draw_text({pos:lerp(xy(201,194+10*i), xy(121,194+10*i), (bgm_measure_t+0.5) mod 1.0), font:font,
             color:if pad.a then PLAYER_COLORS[i] else #f, text:replace("(a)", pad.prompt),
             x_align:"center", z:2040})
         // Draw skunk
@@ -233,7 +233,7 @@ else if next_cmd.cmd == CMD_BLAST_TUTORIAL:
                 // size. Either way, destroy the bomb.
                 const latency_f = round(AUDIO_LATENCY_FRAMES + player_info.latency_offset)
                 const target_f = BGM_FRAMES_PER_MEASURE/2 // target frame is halfway through the measure, at the snare hit
-                const adjusted_release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - latency_f - target_f) % BGM_FRAMES_PER_MEASURE
+                const adjusted_release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - latency_f - target_f) mod BGM_FRAMES_PER_MEASURE
                 const half_fpm = BGM_FRAMES_PER_MEASURE/2
                 const delta_f = if adjusted_release_measure_f > half_fpm then (adjusted_release_measure_f-BGM_FRAMES_PER_MEASURE) else adjusted_release_measure_f
                 let bomb_explodes = false
@@ -284,7 +284,7 @@ else if next_cmd.cmd == CMD_BLAST_TUTORIAL:
                 // Help the player by adjusting the latency towards their actual input time.
                 if abs(delta_f) < INPUT_AUDIO_FRAME_TOLERANCE*3:
                     const old_latency = player_info.latency_offset
-                    player_info.latency_offset = (player_info.latency_offset + INPUT_LATENCY_CORRECTION_FACTOR * delta_f) % BGM_FRAMES_PER_MEASURE
+                    player_info.latency_offset = (player_info.latency_offset + INPUT_LATENCY_CORRECTION_FACTOR * delta_f) mod BGM_FRAMES_PER_MEASURE
                     debug_print("delta=" + delta_f + ": latency adjusted from " + old_latency + " to " + player_info.latency_offset)
                 // Either way, despawn the stinkbomb and let the source skunk drop another one
                 skunk.charging = false
@@ -307,7 +307,7 @@ else if next_cmd.cmd == CMD_BLAST_TUTORIAL:
     // Draw boxes
     def itor_box_flash(box):
         const target_f = BGM_FRAMES_PER_MEASURE / 2 // beats are halfway through each measure
-        const delta_f = (bgm_now_f % BGM_FRAMES_PER_MEASURE) - target_f
+        const delta_f = (bgm_now_f mod BGM_FRAMES_PER_MEASURE) - target_f
         const fade_t = 1 - sqrt(clamp(abs(delta_f/7), 0, 1))
         box.override_color = rgba(#ad4,fade_t)
     iterate(boxes, itor_box_flash)

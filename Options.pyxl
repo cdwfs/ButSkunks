@@ -70,8 +70,8 @@ if not disable_input:
                 DEBUG_CHEATS = CHEATS[cheat_index].value
         if current_menu_item == MENU_CALIBRATE and pad.aa ≠ 0:
             const target_f = BGM_FRAMES_PER_MEASURE/2 // target frame is halfway through the measure, at the snare hit
-            const release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - target_f) % BGM_FRAMES_PER_MEASURE
-            const press_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - target_f) % BGM_FRAMES_PER_MEASURE
+            const release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - target_f) mod BGM_FRAMES_PER_MEASURE
+            const press_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - target_f) mod BGM_FRAMES_PER_MEASURE
             const half_fpm = BGM_FRAMES_PER_MEASURE/2
             const delta_f = if press_f > half_fpm then (press_f-BGM_FRAMES_PER_MEASURE) else press_f
             debug_print("frame: " + press_f + " delta: " + delta_f)
@@ -84,7 +84,7 @@ if not disable_input:
                     x_count += 1
                     AUDIO_LATENCY_FRAMES += x
             if x_count > 0:
-                AUDIO_LATENCY_FRAMES = (round(AUDIO_LATENCY_FRAMES / x_count) + BGM_FRAMES_PER_MEASURE) % BGM_FRAMES_PER_MEASURE
+                AUDIO_LATENCY_FRAMES = (round(AUDIO_LATENCY_FRAMES / x_count) + BGM_FRAMES_PER_MEASURE) mod BGM_FRAMES_PER_MEASURE
 
 
 let menu_offset = xy(200, 100)
@@ -101,7 +101,7 @@ for menu_item at i in MENU_ITEMS:
     else if i == MENU_CALIBRATE:
         if current_menu_item == i:
             const target_f = BGM_FRAMES_PER_MEASURE / 2 // beats are halfway through each measure
-            const delta_f = (bgm_now_f % BGM_FRAMES_PER_MEASURE) - target_f
+            const delta_f = (bgm_now_f mod BGM_FRAMES_PER_MEASURE) - target_f
             const fade_t = 1 - sqrt(clamp(abs(delta_f/7), 0, 1))
             let c = lerp(#000, #ad4, fade_t)
             draw_text({pos:value_offset, text:AUDIO_LATENCY_FRAMES, x_align:"center", font:font, color:#f, outline:c, z:20})

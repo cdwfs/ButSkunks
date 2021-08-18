@@ -246,7 +246,7 @@ def itor_active_skunk_move(skunk):
     with vel, pos in skunk:
         let sv = sign(vel)
         const icell = map_pos_to_cell(pos)
-        const fcell = xy((pos.x/BLOCK_SIZE.x) % 1.0, (pos.y/BLOCK_SIZE.y) % 1.0)
+        const fcell = xy((pos.x/BLOCK_SIZE.x) mod 1.0, (pos.y/BLOCK_SIZE.y) mod 1.0)
         // See if the move is possible, but only stop on centers
         if at_center and (not is_cell_empty(pos, vel) or box_grid[icell.x+sv.x][icell.y+sv.y]):
             // Hit wall. Stop moving
@@ -341,15 +341,15 @@ def itor_enemy_ai(enemy):
     // the current direction, but never move towards a visible skunk.
     let turn_choice = ξ
     if      turn_choice < 0.3:
-        enemy.dir = (enemy.dir + 1) % 4
+        enemy.dir = (enemy.dir + 1) mod 4
     else if turn_choice < 0.6:
-        enemy.dir = (enemy.dir + 3) % 4
+        enemy.dir = (enemy.dir + 3) mod 4
     // Turn if we're walking into an obstacle, or towards a skunk
     let checked_dir_count = 0
     let current_dir_offset = OFFSET_FOR_DIR[enemy.dir]
     let c = icell + current_dir_offset
     while box_grid[c.x][c.y] or skunk_in_dir[enemy.dir] or not get_map_sprite(map, c, 0).can_walk:
-        enemy.dir = (enemy.dir + 1) % 4
+        enemy.dir = (enemy.dir + 1) mod 4
         current_dir_offset = OFFSET_FOR_DIR[enemy.dir]
         c = icell + current_dir_offset
         checked_dir_count += 1
@@ -387,7 +387,7 @@ def itor_stinkbomb_grow(stinkbomb):
             // size. Either way, destroy the bomb.
             const latency_f = round(stinkbomb.source_skunk.player.audio_latency_frames)
             const target_f = BGM_FRAMES_PER_MEASURE/2 // target frame is halfway through the measure, at the snare hit
-            const adjusted_release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - latency_f - target_f) % BGM_FRAMES_PER_MEASURE
+            const adjusted_release_measure_f = (bgm_measure_f + BGM_FRAMES_PER_MEASURE - latency_f - target_f) mod BGM_FRAMES_PER_MEASURE
             const half_fpm = BGM_FRAMES_PER_MEASURE/2
             const delta_f = if adjusted_release_measure_f > half_fpm then (adjusted_release_measure_f-BGM_FRAMES_PER_MEASURE) else adjusted_release_measure_f
             let bomb_explodes = false
@@ -431,7 +431,7 @@ def itor_stinkbomb_grow(stinkbomb):
             // Help the player by adjusting the latency towards their actual input time.
             if abs(delta_f) < INPUT_AUDIO_FRAME_TOLERANCE*3:
                 const old_latency = stinkbomb.source_skunk.player.audio_latency_frames
-                stinkbomb.source_skunk.player.audio_latency_frames = (stinkbomb.source_skunk.player.audio_latency_frames + INPUT_LATENCY_CORRECTION_FACTOR * delta_f) % BGM_FRAMES_PER_MEASURE
+                stinkbomb.source_skunk.player.audio_latency_frames = (stinkbomb.source_skunk.player.audio_latency_frames + INPUT_LATENCY_CORRECTION_FACTOR * delta_f) mod BGM_FRAMES_PER_MEASURE
                 debug_print("delta=" + delta_f + ": latency adjusted from " + old_latency + " to " + stinkbomb.source_skunk.player.audio_latency_frames)            
             // Either way, despawn the stinkbomb and let the source skunk drop another one
             stinkbomb.source_skunk.active_stinkbombs -= 1
@@ -482,7 +482,7 @@ def itor_explosion_fade(explosion):
 // RW: box.override_color
 def itor_box_flash(box):
     const target_f = BGM_FRAMES_PER_MEASURE / 2 // beats are halfway through each measure
-    const delta_f = (bgm_now_f % BGM_FRAMES_PER_MEASURE) - target_f
+    const delta_f = (bgm_now_f mod BGM_FRAMES_PER_MEASURE) - target_f
     const fade_t = 1 - sqrt(clamp(abs(delta_f/7), 0, 1))
     box.override_color = rgba(#ad4,fade_t)
 
