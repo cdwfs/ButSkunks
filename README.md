@@ -1,3 +1,5 @@
+*NOTE*: This game is now hosted in the main [quadplay✜](https://github.com/morgan3d/quadplay) repository. No further changes will be made to this repository.
+
 # But... Skunks!?
 
 ![image](https://raw.githubusercontent.com/cdwfs/ButSkunks/trunk/butskunks-preview.gif)
